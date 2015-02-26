@@ -56,4 +56,10 @@ class TestCategoryInfo(unittest.TestCase):
         self.assertNotEqual(ci1a, ci2)
 
     def test_load_from_csv(self):
-        infos = CategoryInfo.load_from_csv(test_file_path("example.csv"))
+        loaded_infos = CategoryInfo.load_from_csv(test_file_path("example.csv"))
+        expected_infos = [
+            CategoryInfo("A", "100", "a b", "40 60"),
+            CategoryInfo("B", "50", "b c", "20 70"),
+            CategoryInfo("C", "30", "a c", "30 20")
+        ]
+        self.assertEqual(expected_infos, loaded_infos)

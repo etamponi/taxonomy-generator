@@ -1,4 +1,5 @@
 from collections import Counter
+import csv
 
 __author__ = 'Emanuele Tamponi'
 
@@ -18,10 +19,10 @@ class CategoryInfo(object):
         :param frequencies: How many times each predictor is "on" in the category
         """
         try:
-            self.category = category
+            self.category = category.strip()
             self.n_observations = int(n_observations)
-            predictors = predictors.split(" ")
-            frequencies = map(int, frequencies.split(" "))
+            predictors = predictors.strip().split(" ")
+            frequencies = map(int, frequencies.strip().split(" "))
             if len(predictors) != len(frequencies):
                 raise InvalidParameters()
             self.predictors = Counter(dict(zip(predictors, frequencies)))
@@ -46,4 +47,8 @@ class CategoryInfo(object):
 
     @classmethod
     def load_from_csv(cls, file_path):
-        pass
+        with open(file_path) as f:
+            ret = []
+            for row in csv.reader(f):
+                ret.append(CategoryInfo(*row))
+            return ret
