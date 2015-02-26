@@ -29,6 +29,9 @@ class CategoryInfo(object):
         except ValueError:
             raise InvalidParameters()
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
     @classmethod
     def merge(cls, *infos):
         categories = sorted(info.category for info in infos)
@@ -40,3 +43,7 @@ class CategoryInfo(object):
         ci = CategoryInfo(merged_category, merged_n_observations, merged_predictor_keys, merged_predictor_values)
         ci.children = set(infos)
         return ci
+
+    @classmethod
+    def load_from_csv(cls, file_path):
+        pass

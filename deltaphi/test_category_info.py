@@ -1,4 +1,5 @@
 import unittest
+from deltaphi import test_file_path
 from deltaphi.category_info import CategoryInfo, InvalidParameters
 
 __author__ = 'Emanuele Tamponi'
@@ -46,3 +47,13 @@ class TestCategoryInfo(unittest.TestCase):
         self.assertEqual(180, merged.n_observations)
         self.assertEqual({"a": 70, "b": 80, "c": 90}, merged.predictors)
         self.assertEqual({middle, ci3}, merged.children)
+
+    def test_equality(self):
+        ci1a = CategoryInfo("A", "100", "a b", "40 60")
+        ci1b = CategoryInfo("A", "100", "a b", "40 60")
+        ci2 = CategoryInfo("B", "50", "b c", "20 70")
+        self.assertEqual(ci1a, ci1b)
+        self.assertNotEqual(ci1a, ci2)
+
+    def test_load_from_csv(self):
+        infos = CategoryInfo.load_from_csv(test_file_path("example.csv"))
