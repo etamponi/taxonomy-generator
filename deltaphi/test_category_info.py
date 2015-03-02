@@ -1,65 +1,49 @@
 import unittest
-from deltaphi import test_file_path
-from deltaphi.category_info import CategoryInfo, InvalidParameters
+import numpy
+from deltaphi.category_info import CategoryInfo
 
 __author__ = 'Emanuele Tamponi'
 
 
 class TestCategoryInfo(unittest.TestCase):
 
-    def test_init_valid_inputs(self):
-        ci = CategoryInfo("DummyCategory", "100", "aaa bb c", "50 60 40")
-        self.assertEqual("DummyCategory", ci.category)
-        self.assertEqual(100, ci.n_observations)
-        self.assertEqual({"aaa": 50, "bb": 60, "c": 40}, ci.predictors)
-        self.assertEqual({}, ci.children)
-
-    def test_init_invalid_inputs(self):
-        self.assertRaises(InvalidParameters, CategoryInfo, "DummyCategory", "100", "aaa", "10 20")
-        self.assertRaises(InvalidParameters, CategoryInfo, "DummyCategory", "10.2", "aaa", "10")
+    def test_init(self):
+        ci = CategoryInfo("Name", 100, ["a", "b", "c"], [10, 30, 80])
+        self.assertIsInstance(ci.frequencies, numpy.ndarray)
+        self.assertEqual("Name", ci.category)
+        self.assertEqual(100, ci.documents)
+        self.assertEqual(set(), ci.children)
+        numpy.testing.assert_array_equal([10, 30, 80], ci.frequencies)
 
     def test_pairwise_merge(self):
-        ci1 = CategoryInfo("A", "100", "a b", "40 60")
-        ci2 = CategoryInfo("B", "50", "b c", "20 70")
+        terms = ["a", "b", "c"]
+        ci1 = CategoryInfo("C1", 100, terms, [50, 0, 80])
+        ci2 = CategoryInfo("C2", 80, terms, [0, 40, 20])
         merged = CategoryInfo.merge(ci1, ci2)
-        self.assertEqual("(A+B)", merged.category)
-        self.assertEqual(150, merged.n_observations)
-        self.assertEqual({"a": 40, "b": 80, "c": 70}, merged.predictors)
+        numpy.testing.assert_array_equal([50, 40, 100], merged.frequencies)
+        self.assertEqual("(C1+C2)", merged.category)
+        self.assertEqual(180, merged.documents)
         self.assertEqual({ci1, ci2}, merged.children)
 
     def test_multiple_merge(self):
-        ci1 = CategoryInfo("A", "100", "a b", "40 60")
-        ci2 = CategoryInfo("B", "50", "b c", "20 70")
-        ci3 = CategoryInfo("C", "30", "a c", "30 20")
+        terms = ["a", "b", "c"]
+        ci1 = CategoryInfo("C1", 100, terms, [50, 0, 80])
+        ci2 = CategoryInfo("C2", 80, terms, [0, 40, 20])
+        ci3 = CategoryInfo("C3", 130, terms, [20, 20, 30])
         merged = CategoryInfo.merge(ci1, ci2, ci3)
-        self.assertEqual("(A+B+C)", merged.category)
-        self.assertEqual(180, merged.n_observations)
-        self.assertEqual({"a": 70, "b": 80, "c": 90}, merged.predictors)
+        numpy.testing.assert_array_equal([70, 60, 130], merged.frequencies)
+        self.assertEqual("(C1+C2+C3)", merged.category)
+        self.assertEqual(310, merged.documents)
         self.assertEqual({ci1, ci2, ci3}, merged.children)
 
     def test_hierarchical_merge(self):
-        ci1 = CategoryInfo("A", "100", "a b", "40 60")
-        ci2 = CategoryInfo("B", "50", "b c", "20 70")
-        ci3 = CategoryInfo("C", "30", "a c", "30 20")
+        terms = ["a", "b", "c"]
+        ci1 = CategoryInfo("C1", 100, terms, [50, 0, 80])
+        ci2 = CategoryInfo("C2", 80, terms, [0, 40, 20])
+        ci3 = CategoryInfo("C3", 130, terms, [20, 20, 30])
         middle = CategoryInfo.merge(ci1, ci2)
-        merged = CategoryInfo.merge(ci3, middle)
-        self.assertEqual("((A+B)+C)", merged.category)
-        self.assertEqual(180, merged.n_observations)
-        self.assertEqual({"a": 70, "b": 80, "c": 90}, merged.predictors)
+        merged = CategoryInfo.merge(middle, ci3)
+        numpy.testing.assert_array_equal([70, 60, 130], merged.frequencies)
+        self.assertEqual("((C1+C2)+C3)", merged.category)
+        self.assertEqual(310, merged.documents)
         self.assertEqual({middle, ci3}, merged.children)
-
-    def test_equality(self):
-        ci1a = CategoryInfo("A", "100", "a b", "40 60")
-        ci1b = CategoryInfo("A", "100", "a b", "40 60")
-        ci2 = CategoryInfo("B", "50", "b c", "20 70")
-        self.assertEqual(ci1a, ci1b)
-        self.assertNotEqual(ci1a, ci2)
-
-    def test_load_from_csv(self):
-        loaded_infos = CategoryInfo.load_from_csv(test_file_path("example.csv"))
-        expected_infos = [
-            CategoryInfo("A", "100", "a b", "40 60"),
-            CategoryInfo("B", "50", "b c", "20 70"),
-            CategoryInfo("C", "30", "a c", "30 20")
-        ]
-        self.assertEqual(expected_infos, loaded_infos)
