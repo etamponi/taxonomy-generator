@@ -1,6 +1,6 @@
 import unittest
 import numpy
-from deltaphi.binary_metrics import BinaryDiscriminant, BinaryCharacteristic
+from deltaphi.metrics import BinaryDiscriminant, BinaryCharacteristic
 from deltaphi.category_info import SingleCategoryInfo
 
 __author__ = 'Emanuele Tamponi'
