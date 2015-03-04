@@ -13,7 +13,7 @@ class CategoryInfo(object):
         self.category = category
         self.documents = documents
         self.terms = terms
-        self.frequencies = numpy.asarray(frequencies)
+        self.frequencies = numpy.asarray(frequencies, dtype=float)
         self.children = children
 
 
