@@ -1,8 +1,9 @@
 import unittest
+import math
 from mock import MagicMock
 import numpy
 from deltaphi.area_bounds import CheckerBoard
-from deltaphi.metrics import BinaryDiscriminant, BinaryCharacteristic, Separability
+from deltaphi.metrics import BinaryDiscriminant, BinaryCharacteristic, Separability, Cohesion
 from deltaphi.category_info import SingleCategoryInfo
 
 __author__ = 'Emanuele Tamponi'
@@ -33,3 +34,12 @@ class TestMetrics(unittest.TestCase):
         s = Separability(c, d)
         expected_separability = 1. / 2. * ((0.7 - 0.1) + (0.6 - 0.2))
         self.assertEqual(expected_separability, s.evaluate(self.ci1, self.ci2))
+
+    def test_cohesion(self):
+        c = BinaryCharacteristic()
+        c.evaluate = MagicMock(return_value=numpy.asarray([-0.6, -0.1, 0.2, 0.5]))
+        d = BinaryDiscriminant()
+        d.evaluate = MagicMock(return_value=numpy.asarray([-0.1, 0.7, -0.1, 0.1]))
+        coh = Cohesion(c, d)
+        expected_cohesion = 1. / 2. * (math.sqrt(0.2**2 + 0.1**2) + math.sqrt(0.5**2 + 0.1**2))
+        self.assertEqual(expected_cohesion, coh.evaluate(self.ci1, self.ci2))
