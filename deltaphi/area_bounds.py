@@ -5,33 +5,29 @@ __author__ = 'Emanuele Tamponi'
 
 class AreaBounds(object):
 
-    def isInside(self, phi, delta):
+    ALLOWED_ZONES = {"up": 0, "right": 1, "down": 2, "left": 3}
+
+    def __init__(self, *active_zones):
+        self._active = numpy.zeros((1, 4), dtype=int)
+        for zone in (set(active_zones) & set(AreaBounds.ALLOWED_ZONES.keys())):
+            self._active[0, AreaBounds.ALLOWED_ZONES[zone]] = 1
+
+    def is_inside(self, phis, deltas):
         pass
 
 
-class Checker(AreaBounds):
+class CheckerBoard(AreaBounds):
 
-    def __init__(self, active=None):
-        if active is None:
-            self.active = []
-        else:
-            self.active = active
+    def __init__(self, *active_zones):
+        super(CheckerBoard, self).__init__(*active_zones)
 
-    def isInside(self, phi, delta):
-        n1 = [1, -1]
-        n2 = [1, 1]
-        c1 = numpy.dot(n1, [phi, delta])
-        c2 = numpy.dot(n2, [phi, delta])
-        is_up = (c1 <= 0) and (c2 >= 0)
-        is_right = (c1 >= 0) and (c2 >= 0)
-        is_down = (c1 >= 0) and (c2 <= 0)
-        is_left = (c1 <= 0) and (c2 <= 0)
-        if "up" in self.active and is_up:
-            return True
-        if "right" in self.active and is_right:
-            return True
-        if "down" in self.active and is_down:
-            return True
-        if "left" in self.active and is_left:
-            return True
-        return False
+    def is_inside(self, phis, deltas):
+        a = phis - deltas
+        b = phis + deltas
+        matrix = numpy.asarray([
+            numpy.logical_and(a <= 0, b >= 0),
+            numpy.logical_and(a >= 0, b >= 0),
+            numpy.logical_and(a >= 0, b <= 0),
+            numpy.logical_and(a <= 0, b <= 0)
+        ])
+        return numpy.sign(numpy.dot(self._active, matrix)[0])

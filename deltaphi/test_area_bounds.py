@@ -1,19 +1,26 @@
 import unittest
-from deltaphi.area_bounds import Checker
+import numpy
+from deltaphi.area_bounds import CheckerBoard
 
 __author__ = 'Emanuele Tamponi'
 
 
 class TestAreaBounds(unittest.TestCase):
 
-    def test_checker(self):
-        area = Checker(active=["up"])
-        self.assertTrue(area.isInside(delta=1.0, phi=0.0))
-        self.assertTrue(area.isInside(delta=0.5, phi=0.5))
-        self.assertTrue(area.isInside(delta=0.0, phi=0.0))
-        self.assertTrue(area.isInside(delta=0.5, phi=-0.5))
-        self.assertFalse(area.isInside(delta=0.0, phi=0.5))
-        self.assertFalse(area.isInside(delta=0.0, phi=-0.5))
-        area = Checker(active=["left"])
-        self.assertTrue(area.isInside(delta=0.0, phi=-0.5))
-        self.assertFalse(area.isInside(delta=0.0, phi=0.5))
+    def test_checker_board(self):
+        area = CheckerBoard("up")
+        numpy.testing.assert_array_equal(
+            [1, 1, 1, 1, 0, 0],
+            area.is_inside(
+                phis=numpy.asarray([0.0, 0.5, 0.0, -0.5, 0.5, -0.5]),
+                deltas=numpy.asarray([1.0, 0.5, 0.0, 0.5, 0.0, 0.0])
+            )
+        )
+        area = CheckerBoard("left")
+        numpy.testing.assert_array_equal(
+            [1, 0],
+            area.is_inside(
+                phis=numpy.asarray([-0.5, 0.5]),
+                deltas=numpy.asarray([0.0, 0.0])
+            )
+        )
