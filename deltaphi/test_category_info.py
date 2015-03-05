@@ -50,3 +50,15 @@ class TestCategoryInfo(unittest.TestCase):
         self.assertEqual("((C1+C2)+C3)", merged.category)
         self.assertEqual(310, merged.documents)
         self.assertEqual({middle, ci3}, merged.children)
+
+    def test_merge_and_update(self):
+        terms = ["a", "b", "c"]
+        ci1 = SingleCategoryInfo("C1", 100, terms, [50, 0, 80])
+        ci2 = SingleCategoryInfo("C2", 80, terms, [0, 40, 20])
+        merged = MultipleCategoryInfo(ci1, ci2)
+        ci3 = SingleCategoryInfo("C3", 130, terms, [20, 20, 30])
+        merged = MultipleCategoryInfo(ci3, *merged.children)
+        numpy.testing.assert_array_equal([70, 60, 130], merged.frequencies)
+        self.assertEqual("(C1+C2+C3)", merged.category)
+        self.assertEqual(310, merged.documents)
+        self.assertEqual({ci1, ci2, ci3}, merged.children)
