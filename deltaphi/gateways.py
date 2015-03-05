@@ -1,6 +1,9 @@
 import csv
+
 import numpy
+
 from deltaphi.category_info import SingleCategoryInfo
+
 
 __author__ = 'Emanuele Tamponi'
 

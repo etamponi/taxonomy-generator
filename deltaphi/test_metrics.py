@@ -1,10 +1,12 @@
 import unittest
 import math
+
 from mock import MagicMock
 import numpy
-from deltaphi.area_bounds import CheckerBoard
+
 from deltaphi.metrics import BinaryDiscriminant, BinaryCharacteristic, Separability, Cohesion
 from deltaphi.category_info import SingleCategoryInfo
+
 
 __author__ = 'Emanuele Tamponi'
 

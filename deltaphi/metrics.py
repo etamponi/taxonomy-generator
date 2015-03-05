@@ -1,6 +1,7 @@
-from copy import deepcopy
 import numpy
+
 from deltaphi.area_bounds import CheckerBoard
+
 
 __author__ = 'Emanuele Tamponi'
 

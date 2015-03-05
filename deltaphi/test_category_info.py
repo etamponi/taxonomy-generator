@@ -1,6 +1,9 @@
 import unittest
+
 import numpy
+
 from deltaphi.category_info import SingleCategoryInfo, MultipleCategoryInfo
+
 
 __author__ = 'Emanuele Tamponi'
 
