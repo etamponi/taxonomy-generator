@@ -1,8 +1,6 @@
 import csv
 
-import numpy
-
-from deltaphi.category_info import SingleCategoryInfo
+from deltaphi.category_info import CategoryInfoBuilder
 
 
 __author__ = 'Emanuele Tamponi'
@@ -18,8 +16,7 @@ class CSVGateway(Gateway):
 
     def __init__(self, file_path):
         self.file_path = file_path
-        self.terms = None
-        self._term_positions = None
+        self.builder = None
 
     def open(self):
         with open(self.file_path) as f:
@@ -29,8 +26,7 @@ class CSVGateway(Gateway):
                 # row[1] -> documents
                 row_terms = set(row[2].strip().split(" "))
                 all_terms |= row_terms
-            self.terms = sorted(all_terms)
-            self._term_positions = {term: i for i, term in enumerate(self.terms)}
+            self.builder = CategoryInfoBuilder(all_terms)
 
     def iterate(self):
         with open(self.file_path) as f:
@@ -39,7 +35,4 @@ class CSVGateway(Gateway):
                 documents = int(row[1].strip())
                 row_terms = row[2].strip().split(" ")
                 row_frequencies = row[3].strip().split(" ")
-                frequencies = numpy.zeros(len(self.terms))
-                for term, frequency in zip(row_terms, row_frequencies):
-                    frequencies[self._term_positions[term]] = frequency
-                yield SingleCategoryInfo(category, documents, self.terms, frequencies)
+                yield self.builder.build_leaf(category, documents, dict(zip(row_terms, row_frequencies)))

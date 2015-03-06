@@ -5,7 +5,7 @@ from mock import MagicMock
 import numpy
 
 from deltaphi.metrics import BinaryDiscriminant, BinaryCharacteristic, Separability, Cohesion
-from deltaphi.category_info import SingleCategoryInfo
+from deltaphi.category_info import CategoryInfoBuilder
 
 
 __author__ = 'Emanuele Tamponi'
@@ -14,9 +14,9 @@ __author__ = 'Emanuele Tamponi'
 class TestMetrics(unittest.TestCase):
 
     def setUp(self):
-        self.terms = ["a", "b", "c"]
-        self.ci1 = SingleCategoryInfo("A", 100, self.terms, [60, 0, 80])
-        self.ci2 = SingleCategoryInfo("B", 80, self.terms, [0, 30, 50])
+        builder = CategoryInfoBuilder(["a", "b", "c"])
+        self.ci1 = builder.build_leaf("A", 100, {"a": 60, "c": 80})
+        self.ci2 = builder.build_leaf("B", 80, {"b": 30, "c": 50})
 
     def test_binary_discriminant(self):
         d = BinaryDiscriminant()
