@@ -14,7 +14,7 @@ __author__ = 'Emanuele Tamponi'
 class TestMetrics(unittest.TestCase):
 
     def setUp(self):
-        builder = CategoryInfoBuilder(["a", "b", "c"])
+        builder = CategoryInfoBuilder({"a", "b", "c"})
         self.ci1 = builder.build_leaf("A", 100, {"a": 60, "c": 80})
         self.ci2 = builder.build_leaf("B", 80, {"b": 30, "c": 50})
 

@@ -11,7 +11,7 @@ __author__ = 'Emanuele Tamponi'
 class TestCategoryInfo(unittest.TestCase):
 
     def setUp(self):
-        self.builder = CategoryInfoBuilder(["a", "b", "c"])
+        self.builder = CategoryInfoBuilder({"a", "b", "c"})
 
     def test_build_leaf(self):
         ci = self.builder.build_leaf("Name", 100, {"a": 10, "b": 30, "c": 80})

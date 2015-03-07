@@ -13,7 +13,7 @@ __author__ = 'Emanuele Tamponi'
 class TestGateways(unittest.TestCase):
 
     def setUp(self):
-        builder = CategoryInfoBuilder(["a", "b", "c", "d"])
+        builder = CategoryInfoBuilder({"a", "b", "c", "d"})
         self.gateway_impls = [
             gateways.CSVGateway(test_file_path("example.csv"))
         ]
