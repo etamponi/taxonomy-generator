@@ -1,4 +1,5 @@
 import itertools
+
 import numpy
 
 from deltaphi.area_bounds import CheckerBoard

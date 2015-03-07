@@ -2,7 +2,7 @@ import unittest
 
 import numpy
 
-from deltaphi.category_info import CategoryInfo, CategoryInfoBuilder
+from deltaphi.category_info import CategoryInfoBuilder
 import gateways
 from deltaphi import test_file_path
 
