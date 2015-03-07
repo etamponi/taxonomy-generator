@@ -25,13 +25,13 @@ class PairwiseMetric(Metric):
         return self.pairwise_evaluate(*infos)
 
 
-class BinaryDiscriminant(PairwiseMetric):
+class Discriminant(PairwiseMetric):
 
     def pairwise_evaluate(self, ci1, ci2):
         return ci1.frequencies / ci1.documents - ci2.frequencies / ci2.documents
 
 
-class BinaryCharacteristic(PairwiseMetric):
+class Characteristic(PairwiseMetric):
 
     def pairwise_evaluate(self, ci1, ci2):
         return ci1.frequencies / ci1.documents + ci2.frequencies / ci2.documents - 1.0
