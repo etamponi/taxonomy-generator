@@ -28,7 +28,7 @@ class TestMetrics(unittest.TestCase):
         expected_characteristic = numpy.asarray([(60. / 100.) - (80. / 80.), -50. / 80., (80. / 100.) - (30. / 80.)])
         numpy.testing.assert_array_equal(expected_characteristic, c.evaluate(self.ci1, self.ci2))
 
-    def test_separability(self):
+    def test_pairwise_separability(self):
         c = BinaryCharacteristic()
         c.evaluate = MagicMock(return_value=numpy.asarray([-0.6, -0.1, 0.2, 0.5]))
         d = BinaryDiscriminant()
@@ -37,7 +37,7 @@ class TestMetrics(unittest.TestCase):
         expected_separability = 1. / 2. * ((0.7 - 0.1) + (0.6 - 0.2))
         self.assertEqual(expected_separability, s.evaluate(self.ci1, self.ci2))
 
-    def test_cohesion(self):
+    def test_pairwise_cohesion(self):
         c = BinaryCharacteristic()
         c.evaluate = MagicMock(return_value=numpy.asarray([-0.6, -0.1, 0.2, 0.5]))
         d = BinaryDiscriminant()
