@@ -1,7 +1,5 @@
 import unittest
-import math
 
-from mock import MagicMock
 import numpy
 
 from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion
@@ -14,36 +12,47 @@ __author__ = 'Emanuele Tamponi'
 class TestMetrics(unittest.TestCase):
 
     def setUp(self):
-        builder = CategoryInfoBuilder({"a", "b", "c"})
-        self.ci1 = builder.build_leaf("A", 100, {"a": 60, "c": 80})
-        self.ci2 = builder.build_leaf("B", 80, {"b": 30, "c": 50})
+        builder = CategoryInfoBuilder({"a", "b", "c", "d"})
+        self.ci1 = builder.build_leaf("A", 10, {"a": 9, "b": 1, "c": 2, "d": 9})
+        self.ci2 = builder.build_leaf("A", 10, {"a": 1, "b": 8, "c": 1, "d": 8})
+        self.ci3 = builder.build_leaf("A", 10, {"a": 2, "b": 3, "c": 9, "d": 7})
 
     def test_binary_discriminant(self):
         d = Discriminant()
-        expected_discriminant = numpy.asarray([60. / 100., -30. / 80., (80. / 100.) - (50. / 80.)])
-        numpy.testing.assert_array_equal(expected_discriminant, d.evaluate(self.ci1, self.ci2))
+        expected_discriminant = 0.1 * numpy.asarray([8, -7, 1, 1])
+        numpy.testing.assert_array_almost_equal(expected_discriminant, d.evaluate(self.ci1, self.ci2))
 
     def test_binary_characteristic(self):
         c = Characteristic()
-        expected_characteristic = numpy.asarray([(60. / 100.) - (80. / 80.), -50. / 80., (80. / 100.) - (30. / 80.)])
-        numpy.testing.assert_array_equal(expected_characteristic, c.evaluate(self.ci1, self.ci2))
+        expected_characteristic = 0.1 * numpy.asarray([0, -1, -7, 7])
+        numpy.testing.assert_array_almost_equal(expected_characteristic, c.evaluate(self.ci1, self.ci2))
 
     def test_pairwise_separability(self):
         c = Characteristic()
-        c.evaluate = MagicMock(return_value=numpy.asarray([-0.6, -0.1, 0.2, 0.5]))
         d = Discriminant()
-        d.evaluate = MagicMock(return_value=numpy.asarray([-0.1, 0.7, -0.6, 0.1]))
         s = Separability(c, d)
-        expected_separability = 1. / 2. * ((0.7 - 0.1) + (0.6 - 0.2))
-        self.assertEqual(expected_separability, s.evaluate(self.ci1, self.ci2))
-        self.assertEqual(expected_separability, s.evaluate(self.ci2, self.ci1))
+        expected_separability = 0.7
+        self.assertAlmostEqual(expected_separability, s.evaluate(self.ci1, self.ci2))
+        self.assertAlmostEqual(expected_separability, s.evaluate(self.ci2, self.ci1))
+
+    def test_separability(self):
+        c = Characteristic()
+        d = Discriminant()
+        sep = Separability(c, d)
+        expected_cohesion = 0.60
+        self.assertAlmostEqual(expected_cohesion, sep.evaluate(self.ci1, self.ci2, self.ci3), 2)
 
     def test_pairwise_cohesion(self):
         c = Characteristic()
-        c.evaluate = MagicMock(return_value=numpy.asarray([-0.6, -0.1, 0.2, 0.5]))
         d = Discriminant()
-        d.evaluate = MagicMock(return_value=numpy.asarray([-0.1, 0.7, -0.1, 0.1]))
         coh = Cohesion(c, d)
-        expected_cohesion = 1. / 2. * (math.sqrt(0.2**2 + 0.1**2) + math.sqrt(0.5**2 + 0.1**2))
-        self.assertEqual(expected_cohesion, coh.evaluate(self.ci1, self.ci2))
-        self.assertEqual(expected_cohesion, coh.evaluate(self.ci2, self.ci1))
+        expected_cohesion = 0.71
+        self.assertAlmostEqual(expected_cohesion, coh.evaluate(self.ci1, self.ci2), 2)
+        self.assertAlmostEqual(expected_cohesion, coh.evaluate(self.ci2, self.ci1), 2)
+
+    def test_cohesion(self):
+        c = Characteristic()
+        d = Discriminant()
+        coh = Cohesion(c, d)
+        expected_cohesion = 0.51
+        self.assertAlmostEqual(expected_cohesion, coh.evaluate(self.ci1, self.ci2, self.ci3), 2)
