@@ -1,4 +1,7 @@
-import itertools
+from blist import blist
+
+from deltaphi.category_info import CategoryGroup
+
 
 __author__ = 'Emanuele Tamponi'
 
@@ -7,30 +10,23 @@ class CategoryLayerBuilder(object):
 
     @classmethod
     def build_from_singletons(cls, info_iterable):
-        return CategoryLayer(frozenset([info]) for info in info_iterable)
+        return CategoryLayer([CategoryGroup(info) for info in info_iterable])
 
     @classmethod
-    def build_from_group_merge(cls, layer, group_i, group_j):
-        groups = layer.groups - {group_i, group_j}
-        groups = groups | {group_i | group_j}
-        return CategoryLayer(groups)
-
-    @classmethod
-    def build_parent_layer(cls, layer, category_info_builder):
-        parent_groups = set()
-        for group in layer.groups:
-            if len(group) > 1:
-                parent_groups.add(frozenset([category_info_builder.build_node(group)]))
-            else:
-                parent_groups.add(group)
-        return CategoryLayer(parent_groups)
+    def build_by_pairwise_group_merge(cls, layer, i, j):
+        new_layer = CategoryLayer(layer.groups)
+        if i > j:
+            i, j = j, i
+        del new_layer.groups[j]
+        del new_layer.groups[i]
+        new_layer.groups.append(layer.groups[i] + layer.groups[j])
+        return new_layer
 
 
 class CategoryLayer(object):
 
     def __init__(self, groups):
-        self.groups = frozenset(groups)
+        self.groups = blist(groups)
 
-    def iterate_pairwise_merges(self):
-        for group_i, group_j in itertools.combinations(self.groups, 2):
-            yield CategoryLayerBuilder.build_from_group_merge(self, group_i, group_j)
+    def build_parent(self):
+        return CategoryLayer([CategoryGroup(group.build_parent_info()) for group in self.groups])

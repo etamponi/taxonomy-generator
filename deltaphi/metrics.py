@@ -10,7 +10,7 @@ __author__ = 'Emanuele Tamponi'
 
 class Metric(object):
 
-    def evaluate(self, *infos):
+    def evaluate(self, group):
         pass
 
 
@@ -22,10 +22,10 @@ class PairwiseMetric(Metric):
 
 class OnlyPairwiseMetric(PairwiseMetric):
 
-    def evaluate(self, *infos):
-        if len(infos) != 2:
+    def evaluate(self, group):
+        if len(group) != 2:
             return NotImplemented
-        return self.pairwise_evaluate(*infos)
+        return self.pairwise_evaluate(group[0], group[1])
 
 
 class Discriminant(OnlyPairwiseMetric):
@@ -48,14 +48,14 @@ class IntegralMetric(PairwiseMetric):
         self.area_bounds = area_bounds
 
     def pairwise_evaluate(self, ci1, ci2):
-        phis = self.characteristic.evaluate(ci1, ci2)
-        deltas = self.discriminant.evaluate(ci1, ci2)
+        phis = self.characteristic.pairwise_evaluate(ci1, ci2)
+        deltas = self.discriminant.pairwise_evaluate(ci1, ci2)
         inside = self.area_bounds.is_inside(phis, deltas)
         return self.integrate(phis, deltas, inside)
 
-    def evaluate(self, *infos):
+    def evaluate(self, group):
         metric = 1
-        for ci1, ci2 in itertools.combinations(infos, 2):
+        for ci1, ci2 in itertools.combinations(group, 2):
             metric = min(metric, self.pairwise_evaluate(ci1, ci2))
         return metric
 
@@ -79,3 +79,13 @@ class Cohesion(IntegralMetric):
 
     def integrate(self, phis, deltas, inside):
         return numpy.dot(numpy.sqrt(phis**2 + deltas**2), inside) / inside.sum()
+
+
+class RankingMetric(Metric):
+
+    def __init__(self):
+        self.separability = Separability()
+        self.cohesion = Cohesion()
+
+    def evaluate(self, group):
+        return self.separability.evaluate(group) * self.cohesion.evaluate(group)
