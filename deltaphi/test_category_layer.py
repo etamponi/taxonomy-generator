@@ -1,6 +1,6 @@
 import unittest
 
-from deltaphi.category_layer import CategoryLayerBuilder
+from deltaphi.category_info import CategoryGroup, CategoryLayer
 from deltaphi import test_file_path
 from deltaphi.gateways import CSVGateway
 
@@ -15,20 +15,18 @@ class TestCategoryLayer(unittest.TestCase):
         self.gateway.open()
 
     def test_pairwise_merge(self):
-        layer = CategoryLayerBuilder.build_from_singletons(self.gateway.iterate())
-        self.assertEqual(3, len(layer.groups))
-        expected_merged_categories = [
-            layer.groups[0].categories,
-            (layer.groups[1] + layer.groups[2]).categories
-        ]
-        actual_merged_categories = [
-            group.categories for group in CategoryLayerBuilder.build_by_pairwise_group_merge(layer, 1, 2).groups
-        ]
-        self.assertEqual(expected_merged_categories, actual_merged_categories)
+        layer = CategoryLayer.build_singleton_layer(self.gateway.iterate())
+        expected_layer = CategoryLayer([
+            layer.groups[0],
+            layer.groups[1] + layer.groups[2]
+        ])
+        self.assertEqual(expected_layer, layer.merge_groups(1, 2))
 
     def test_build_parent_layer(self):
-        layer = CategoryLayerBuilder.build_from_singletons(self.gateway.iterate())
-        layer = CategoryLayerBuilder.build_by_pairwise_group_merge(layer, 0, 1)
-        layer = layer.build_parent()
-        self.assertEqual(2, len(layer.groups))
-        self.assertEqual({1, 1}, {len(group) for group in layer.groups})
+        layer = CategoryLayer.build_singleton_layer(self.gateway.iterate())
+        merged = layer.merge_groups(0, 1)
+        expected_parent = CategoryLayer([
+            layer.groups[2],
+            CategoryGroup([(layer.groups[0] + layer.groups[1]).build_parent_info()])
+        ])
+        self.assertEqual(expected_parent, merged.build_parent())

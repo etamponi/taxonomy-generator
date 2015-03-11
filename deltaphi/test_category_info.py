@@ -2,7 +2,7 @@ import unittest
 
 import numpy
 
-from deltaphi.category_info import CategoryInfoBuilder
+from deltaphi.category_info import CategoryInfoBuilder, CategoryGroup
 
 
 __author__ = 'Emanuele Tamponi'
@@ -24,29 +24,29 @@ class TestCategoryInfo(unittest.TestCase):
     def test_build_parent_pairwise(self):
         ci1 = self.builder.build_leaf("C1", 100, {"a": 50, "c": 80})
         ci2 = self.builder.build_leaf("C2", 80, {"b": 40, "c": 20})
-        merged = self.builder.build_parent(ci1, ci2)
+        merged = CategoryGroup([ci1, ci2]).build_parent_info()
         numpy.testing.assert_array_equal([50, 40, 100], merged.frequencies)
         self.assertEqual("(C1+C2)", merged.category)
         self.assertEqual(180, merged.documents)
-        self.assertEqual((ci1, ci2), merged.children.categories)
+        self.assertEqual(CategoryGroup([ci1, ci2]), merged.children)
 
     def test_build_parent_multiple(self):
         ci1 = self.builder.build_leaf("C1", 100, {"a": 50, "c": 80})
         ci2 = self.builder.build_leaf("C2", 80, {"b": 40, "c": 20})
         ci3 = self.builder.build_leaf("C3", 130, {"a": 20, "b": 20, "c": 30})
-        merged = self.builder.build_parent(ci1, ci2, ci3)
+        merged = CategoryGroup([ci1, ci2, ci3]).build_parent_info()
         numpy.testing.assert_array_equal([70, 60, 130], merged.frequencies)
         self.assertEqual("(C1+C2+C3)", merged.category)
         self.assertEqual(310, merged.documents)
-        self.assertEqual((ci1, ci2, ci3), merged.children.categories)
+        self.assertEqual(CategoryGroup([ci1, ci2, ci3]), merged.children)
 
     def test_hierarchical_build_node(self):
         ci1 = self.builder.build_leaf("C1", 100, {"a": 50, "c": 80})
         ci2 = self.builder.build_leaf("C2", 80, {"b": 40, "c": 20})
         ci3 = self.builder.build_leaf("C3", 130, {"a": 20, "b": 20, "c": 30})
-        middle = self.builder.build_parent(ci1, ci2)
-        merged = self.builder.build_parent(ci3, middle)
+        middle = CategoryGroup([ci1, ci2]).build_parent_info()
+        merged = CategoryGroup([ci3, middle]).build_parent_info()
         numpy.testing.assert_array_equal([70, 60, 130], merged.frequencies)
         self.assertEqual("((C1+C2)+C3)", merged.category)
         self.assertEqual(310, merged.documents)
-        self.assertEqual((ci3, middle), merged.children.categories)
+        self.assertEqual(CategoryGroup([ci3, middle]), merged.children)

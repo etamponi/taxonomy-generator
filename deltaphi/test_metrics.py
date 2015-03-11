@@ -30,21 +30,21 @@ class TestMetrics(unittest.TestCase):
     def test_pairwise_separability(self):
         s = Separability()
         expected_separability = 0.7
-        self.assertAlmostEqual(expected_separability, s.evaluate(CategoryGroup(self.ci1, self.ci2)))
-        self.assertAlmostEqual(expected_separability, s.evaluate(CategoryGroup(self.ci2, self.ci1)))
+        self.assertAlmostEqual(expected_separability, s.evaluate(CategoryGroup([self.ci1, self.ci2])))
+        self.assertAlmostEqual(expected_separability, s.evaluate(CategoryGroup([self.ci2, self.ci1])))
 
     def test_separability(self):
         sep = Separability()
         expected_cohesion = 0.60
-        self.assertAlmostEqual(expected_cohesion, sep.evaluate(CategoryGroup(self.ci1, self.ci2, self.ci3)), 2)
+        self.assertAlmostEqual(expected_cohesion, sep.evaluate(CategoryGroup([self.ci1, self.ci2, self.ci3])), 2)
 
     def test_pairwise_cohesion(self):
         coh = Cohesion()
         expected_cohesion = 0.71
-        self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup(self.ci1, self.ci2)), 2)
-        self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup(self.ci2, self.ci1)), 2)
+        self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup([self.ci1, self.ci2])), 2)
+        self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup([self.ci2, self.ci1])), 2)
 
     def test_cohesion(self):
         coh = Cohesion()
         expected_cohesion = 0.51
-        self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup(self.ci1, self.ci2, self.ci3)), 2)
+        self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup([self.ci1, self.ci2, self.ci3])), 2)
