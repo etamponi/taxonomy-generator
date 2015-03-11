@@ -8,39 +8,31 @@ from deltaphi.area_bounds import CheckerBoard
 __author__ = 'Emanuele Tamponi'
 
 
-class Metric(object):
-
-    def evaluate(self, group):
-        pass
-
-
-class PairwiseMetric(Metric):
+class PairwiseMetric(object):
 
     def pairwise_evaluate(self, ci1, ci2):
         pass
 
 
-class OnlyPairwiseMetric(PairwiseMetric):
-
-    def evaluate(self, group):
-        if len(group) != 2:
-            return NotImplemented
-        return self.pairwise_evaluate(group[0], group[1])
-
-
-class Discriminant(OnlyPairwiseMetric):
+class Discriminant(PairwiseMetric):
 
     def pairwise_evaluate(self, ci1, ci2):
         return ci1.frequencies / ci1.documents - ci2.frequencies / ci2.documents
 
 
-class Characteristic(OnlyPairwiseMetric):
+class Characteristic(PairwiseMetric):
 
     def pairwise_evaluate(self, ci1, ci2):
         return ci1.frequencies / ci1.documents + ci2.frequencies / ci2.documents - 1.0
 
 
-class IntegralMetric(PairwiseMetric):
+class GroupMetric(object):
+
+    def evaluate(self, group):
+        pass
+
+
+class IntegralMetric(GroupMetric):
 
     def __init__(self, characteristic, discriminant, area_bounds):
         self.characteristic = characteristic
@@ -81,7 +73,7 @@ class Cohesion(IntegralMetric):
         return numpy.dot(numpy.sqrt(phis**2 + deltas**2), inside) / inside.sum()
 
 
-class RankingMetric(Metric):
+class Ranking(GroupMetric):
 
     def __init__(self):
         self.separability = Separability()

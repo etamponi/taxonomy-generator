@@ -20,12 +20,12 @@ class TestMetrics(unittest.TestCase):
     def test_discriminant(self):
         d = Discriminant()
         expected_discriminant = 0.1 * numpy.asarray([8, -7, 1, 1])
-        numpy.testing.assert_array_almost_equal(expected_discriminant, d.evaluate(CategoryGroup(self.ci1, self.ci2)))
+        numpy.testing.assert_array_almost_equal(expected_discriminant, d.pairwise_evaluate(self.ci1, self.ci2))
 
     def test_characteristic(self):
         c = Characteristic()
         expected_characteristic = 0.1 * numpy.asarray([0, -1, -7, 7])
-        numpy.testing.assert_array_almost_equal(expected_characteristic, c.evaluate(CategoryGroup(self.ci1, self.ci2)))
+        numpy.testing.assert_array_almost_equal(expected_characteristic, c.pairwise_evaluate(self.ci1, self.ci2))
 
     def test_pairwise_separability(self):
         s = Separability()
