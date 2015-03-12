@@ -41,6 +41,9 @@ class CategoryGroup(object):
     def __len__(self):
         return len(self.infos)
 
+    def __cmp__(self, other):
+        return cmp(self.infos, other.infos)
+
     def build_parent_info(self):
         if len(self.infos) == 1:
             return self.infos[0]
@@ -48,9 +51,6 @@ class CategoryGroup(object):
         merged_documents = sum(ci.documents for ci in self)
         merged_frequencies = sum(ci.frequencies for ci in self)
         return CategoryInfo(merged_category, merged_documents, self.terms, merged_frequencies, self)
-
-    def __cmp__(self, other):
-        return cmp(self.infos, other.infos)
 
 
 class CategoryLayer(object):
@@ -65,11 +65,11 @@ class CategoryLayer(object):
         new_layer.groups.add(a + b)
         return new_layer
 
-    def build_parent(self):
-        return CategoryLayer.build_singleton_layer(group.build_parent_info() for group in self.groups)
-
     def __cmp__(self, other):
         return cmp(self.groups, other.groups)
+
+    def build_parent(self):
+        return CategoryLayer.build_singleton_layer(group.build_parent_info() for group in self.groups)
 
     @classmethod
     def build_singleton_layer(cls, info_iterable):
