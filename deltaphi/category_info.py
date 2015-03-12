@@ -1,4 +1,4 @@
-from blist import sortedlist, blist
+from blist import sortedlist
 import numpy
 
 __author__ = 'Emanuele Tamponi'
@@ -56,15 +56,13 @@ class CategoryGroup(object):
 class CategoryLayer(object):
 
     def __init__(self, groups):
-        self.groups = blist(groups)
+        self.groups = sortedlist(groups)
 
-    def merge_groups(self, i, j):
+    def merge_groups(self, a, b):
         new_layer = CategoryLayer(self.groups)
-        if i > j:
-            i, j = j, i
-        del new_layer.groups[j]
-        del new_layer.groups[i]
-        new_layer.groups.append(self.groups[i] + self.groups[j])
+        new_layer.groups.remove(a)
+        new_layer.groups.remove(b)
+        new_layer.groups.add(a + b)
         return new_layer
 
     def build_parent(self):
