@@ -20,6 +20,9 @@ class CategoryInfo(object):
     def __cmp__(self, other):
         return cmp(self.category, other.category)
 
+    def __repr__(self):
+        return self.category
+
 
 class CategoryGroup(object):
 
@@ -52,6 +55,9 @@ class CategoryGroup(object):
         merged_frequencies = sum(ci.frequencies for ci in self)
         return CategoryInfo(merged_category, merged_documents, self.terms, merged_frequencies, self)
 
+    def __repr__(self):
+        return repr(list(self.infos))
+
 
 class CategoryLayer(object):
 
@@ -75,11 +81,14 @@ class CategoryLayer(object):
     def build_singleton_layer(cls, info_iterable):
         return CategoryLayer([CategoryGroup([info]) for info in info_iterable])
 
+    def __repr__(self):
+        return "Layer: {}".format(list(self.groups))
+
 
 class CategoryInfoBuilder(object):
 
     def __init__(self, terms):
-        self.terms = numpy.asarray(sorted(terms))
+        self.terms = sortedlist(terms)
         self.term_positions = {term: i for i, term in enumerate(self.terms)}
 
     def build_leaf(self, category, documents, term_frequencies):
