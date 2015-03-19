@@ -1,5 +1,8 @@
+import unicodedata
+
 from blist import sortedlist
 import numpy
+
 
 __author__ = 'Emanuele Tamponi'
 
@@ -87,14 +90,18 @@ class CategoryLayer(object):
 
 class CategoryInfoBuilder(object):
 
-    def __init__(self, terms):
-        self.terms = sortedlist(unicode(term, "utf-8") for term in terms)
+    def __init__(self, terms, normalization="NFKC"):
+        self.normalization = normalization
+        self.terms = sortedlist(self._normalize(term) for term in terms)
         self.term_positions = {term: i for i, term in enumerate(self.terms)}
 
     def build_leaf(self, category, documents, term_frequencies):
         full_frequencies = numpy.zeros(len(self.terms))
         for term, frequency in term_frequencies.iteritems():
-            term = unicode(term, "utf-8")
+            term = self._normalize(term)
             if term in self.term_positions:
                 full_frequencies[self.term_positions[term]] = frequency
         return CategoryInfo(category, documents, self.terms, full_frequencies, None)
+
+    def _normalize(self, term):
+        return unicodedata.normalize(self.normalization, unicode(term, "utf-8"))
