@@ -10,4 +10,12 @@ class TermProcessor(object):
         self.lemmatizer = WordNetLemmatizer()
 
     def filter(self, terms):
-        return [self.lemmatizer.lemmatize(term, "v") for term in terms if len(term) >= self.min_length]
+        ret = []
+        for term in terms:
+            term = self.transform(term)
+            if term is not None:
+                ret.append(term)
+        return ret
+
+    def transform(self, term):
+        return self.lemmatizer.lemmatize(term, "v") if len(term) >= self.min_length else None

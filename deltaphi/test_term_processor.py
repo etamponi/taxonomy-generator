@@ -22,3 +22,9 @@ class TestTermProcessor(unittest.TestCase):
         expected_terms = [u"test", u"do", u"love", u"report"]
         tp = TermProcessor(min_length=1)
         self.assertEqual(expected_terms, tp.filter(original_terms))
+
+    def test_transform_term(self):
+        tp = TermProcessor(min_length=3)
+        self.assertEqual(None, tp.transform(u"a"))
+        self.assertEqual(None, tp.transform(u"aa"))
+        self.assertEqual(u"do", tp.transform(u"done"))
