@@ -18,7 +18,7 @@ class TestTermProcessor(unittest.TestCase):
         self.assertEqual(expected_terms_2, tp.filter(original_terms))
 
     def test_filter_lemmatize(self):
-        original_terms = [u"testing", u"grouper", u"done", u"loved", u"reported"]
-        expected_terms = [u"test", u"group", u"do", u"love", u"report"]
+        original_terms = [u"testing", u"done", u"loved", u"reported"]
+        expected_terms = [u"test", u"do", u"love", u"report"]
         tp = TermProcessor(min_length=1)
         self.assertEqual(expected_terms, tp.filter(original_terms))
