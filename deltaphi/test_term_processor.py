@@ -18,8 +18,8 @@ class TestTermProcessor(unittest.TestCase):
         self.assertEqual(expected_terms_2, tp.filter(original_terms))
 
     def test_filter_lemmatize(self):
-        original_terms = [u"testing", u"done", u"loved", u"reported"]
-        expected_terms = [u"test", u"do", u"love", u"report"]
+        original_terms = [u"testing", u"taken", u"loved", u"reported"]
+        expected_terms = [u"test", u"take", u"love", u"report"]
         tp = TermProcessor(min_length=1)
         self.assertEqual(expected_terms, tp.filter(original_terms))
 
@@ -27,4 +27,10 @@ class TestTermProcessor(unittest.TestCase):
         tp = TermProcessor(min_length=3)
         self.assertEqual(None, tp.transform(u"a"))
         self.assertEqual(None, tp.transform(u"aa"))
-        self.assertEqual(u"do", tp.transform(u"done"))
+        self.assertEqual(u"take", tp.transform(u"taken"))
+
+    def test_stopwords(self):
+        original_terms = [u"a", u"an", u"the", u"test"]
+        expected_terms = [u"test"]
+        tp = TermProcessor(min_length=1)
+        self.assertEqual(expected_terms, tp.filter(original_terms))
