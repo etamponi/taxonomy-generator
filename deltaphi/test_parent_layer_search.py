@@ -4,7 +4,7 @@ from deltaphi import test_file_path
 from deltaphi.category_info import CategoryLayer
 from deltaphi.filter import Filter
 from deltaphi.sources import CSVRawSource, CategoryInfoSource
-from deltaphi.metrics import Ranking
+from deltaphi.metrics import GroupScore
 from deltaphi.parent_layer_search import GreedyMergeSearch
 
 
@@ -15,7 +15,7 @@ class TestParentLayerSearch(unittest.TestCase):
 
     def setUp(self):
         self.search_impls = [
-            GreedyMergeSearch(Ranking())
+            GreedyMergeSearch(GroupScore())
         ]
         source = CategoryInfoSource(CSVRawSource(test_file_path("dmoz_arts_7.csv")), Filter())
         source.open()

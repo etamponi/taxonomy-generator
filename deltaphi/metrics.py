@@ -75,7 +75,7 @@ class Cohesion(IntegralMetric):
         return numpy.dot(numpy.sqrt(phis**2 + deltas**2), inside) / den if den > 0 else 0
 
 
-class Ranking(GroupMetric):
+class GroupScore(GroupMetric):
 
     def __init__(self):
         self.separability = Separability()
@@ -83,3 +83,15 @@ class Ranking(GroupMetric):
 
     def evaluate(self, group):
         return self.separability.evaluate(group) * self.cohesion.evaluate(group)
+
+
+class LayerMetric(object):
+
+    def evaluate(self, layer):
+        pass
+
+
+class LayerScore(LayerMetric):
+
+    def evaluate(self, layer):
+        pass
