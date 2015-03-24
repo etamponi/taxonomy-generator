@@ -11,8 +11,8 @@ class ParentLayerSearch(object):
 
 class GreedyMergeSearch(ParentLayerSearch):
 
-    def __init__(self, scorer):
-        self.scorer = scorer
+    def __init__(self, group_score):
+        self.group_score = group_score
 
     def perform(self, layer):
         if all(len(group) > 1 for group in layer.groups):
@@ -20,7 +20,7 @@ class GreedyMergeSearch(ParentLayerSearch):
         best_score = 0
         best_pair = None
         for a, b in itertools.combinations(layer.groups, 2):
-            score = self.scorer.evaluate(a + b)
+            score = self.group_score.evaluate(a + b)
             if score > best_score:
                 best_score = score
                 best_pair = (a, b)
