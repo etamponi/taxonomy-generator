@@ -61,7 +61,8 @@ class Separability(IntegralMetric):
         super(Separability, self).__init__(Characteristic(), Discriminant(), CheckerBoard("up", "down"))
 
     def integrate(self, phis, deltas, inside):
-        return numpy.dot(abs(deltas) - abs(phis), inside) / inside.sum()
+        den = inside.sum()
+        return numpy.dot(abs(deltas) - abs(phis), inside) / den if den > 0 else 0
 
 
 class Cohesion(IntegralMetric):
@@ -70,7 +71,8 @@ class Cohesion(IntegralMetric):
         super(Cohesion, self).__init__(Characteristic(), Discriminant(), CheckerBoard("right"))
 
     def integrate(self, phis, deltas, inside):
-        return numpy.dot(numpy.sqrt(phis**2 + deltas**2), inside) / inside.sum()
+        den = inside.sum()
+        return numpy.dot(numpy.sqrt(phis**2 + deltas**2), inside) / den if den > 0 else 0
 
 
 class Ranking(GroupMetric):
