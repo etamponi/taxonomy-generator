@@ -6,7 +6,7 @@ from deltaphi.category_info import RawCategoryInfo
 __author__ = 'Emanuele Tamponi'
 
 
-class Preprocessor(object):
+class Filter(object):
 
     def __init__(self, min_length=1, normalization="NFKC", lemmatizer=None, stopwords=None):
         self.min_length = min_length
@@ -14,7 +14,7 @@ class Preprocessor(object):
         self.lemmatizer = lemmatizer
         self.stopwords = stopwords if stopwords is not None else {}
 
-    def process(self, rci):
+    def apply(self, rci):
         processed = RawCategoryInfo(rci.category, rci.documents, {})
         for term, frequency in rci.term_frequencies.iteritems():
             term = self._transform(term)

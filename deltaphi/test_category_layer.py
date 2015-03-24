@@ -2,7 +2,7 @@ import unittest
 
 from deltaphi.category_info import CategoryGroup, CategoryLayer
 from deltaphi import test_file_path
-from deltaphi.preprocessor import Preprocessor
+from deltaphi.filter import Filter
 from deltaphi.sources import CSVRawSource, CategoryInfoSource
 
 
@@ -12,7 +12,7 @@ __author__ = 'Emanuele Tamponi'
 class TestCategoryLayer(unittest.TestCase):
 
     def setUp(self):
-        self.source = CategoryInfoSource(CSVRawSource(test_file_path("example.csv")), Preprocessor())
+        self.source = CategoryInfoSource(CSVRawSource(test_file_path("example.csv")), Filter())
         self.source.open()
 
     def test_pairwise_merge(self):
