@@ -28,3 +28,13 @@ class GreedyMergeSearch(ParentLayerSearch):
             return [layer.build_parent()]
         else:
             return self.perform(layer.merge_groups(best_pair[0], best_pair[1]))
+
+
+class ClusteringSearch(ParentLayerSearch):
+
+    def __init__(self, group_score, attempts):
+        self.group_score = group_score
+        self.attempts = attempts
+
+    def perform(self, layer):
+        pass
