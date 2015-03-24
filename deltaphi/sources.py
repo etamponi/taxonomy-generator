@@ -43,9 +43,9 @@ class CSVRawSource(RawSource):
 
 class CategoryInfoSource(object):
 
-    def __init__(self, raw_source, filter):
+    def __init__(self, raw_source, flt):
         self.raw_source = raw_source
-        self.filter = filter
+        self.filter = flt
         self.factory = None
 
     def open(self):
