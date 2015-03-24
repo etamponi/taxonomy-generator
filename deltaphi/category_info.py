@@ -1,4 +1,4 @@
-import unicodedata
+from collections import Counter
 
 from blist import sortedlist
 import numpy
@@ -7,8 +7,12 @@ import numpy
 __author__ = 'Emanuele Tamponi'
 
 
-class TermsError(Exception):
-    pass
+class RawCategoryInfo(object):
+
+    def __init__(self, category, documents, term_frequencies):
+        self.category = category
+        self.documents = documents
+        self.term_frequencies = Counter(term_frequencies)
 
 
 class CategoryInfo(object):
@@ -64,8 +68,8 @@ class CategoryGroup(object):
 
 class CategoryLayer(object):
 
-    def __init__(self, groups):
-        self.groups = sortedlist(groups)
+    def __init__(self, group_iterable):
+        self.groups = sortedlist(group_iterable)
 
     def merge_groups(self, a, b):
         new_layer = CategoryLayer(self.groups)
@@ -80,6 +84,9 @@ class CategoryLayer(object):
     def build_parent(self):
         return CategoryLayer.build_singleton_layer(group.build_parent_info() for group in self.groups)
 
+    def is_singleton_layer(self):
+        return all(len(group) == 1 for group in self.groups)
+
     @classmethod
     def build_singleton_layer(cls, info_iterable):
         return CategoryLayer([CategoryGroup([info]) for info in info_iterable])
@@ -88,20 +95,15 @@ class CategoryLayer(object):
         return "Layer: {}".format(list(self.groups))
 
 
-class CategoryInfoBuilder(object):
+class CategoryInfoFactory(object):
 
-    def __init__(self, terms, normalization="NFKC"):
-        self.normalization = normalization
-        self.terms = sortedlist(self._normalize(term) for term in terms)
+    def __init__(self, terms):
+        self.terms = sortedlist(terms)
         self.term_positions = {term: i for i, term in enumerate(self.terms)}
 
-    def build_leaf(self, category, documents, term_frequencies):
+    def build(self, raw_category_info):
         full_frequencies = numpy.zeros(len(self.terms))
-        for term, frequency in term_frequencies.iteritems():
-            term = self._normalize(term)
+        for term, frequency in raw_category_info.term_frequencies.iteritems():
             if term in self.term_positions:
                 full_frequencies[self.term_positions[term]] = frequency
-        return CategoryInfo(category, documents, self.terms, full_frequencies, None)
-
-    def _normalize(self, term):
-        return unicodedata.normalize(self.normalization, unicode(term, "utf-8"))
+        return CategoryInfo(raw_category_info.category, raw_category_info.documents, self.terms, full_frequencies, None)

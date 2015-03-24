@@ -2,7 +2,8 @@ import unittest
 
 from deltaphi.category_info import CategoryGroup, CategoryLayer
 from deltaphi import test_file_path
-from deltaphi.gateways import CSVGateway
+from deltaphi.preprocessor import Preprocessor
+from deltaphi.sources import CSVRawSource, CategoryInfoSource
 
 
 __author__ = 'Emanuele Tamponi'
@@ -11,11 +12,11 @@ __author__ = 'Emanuele Tamponi'
 class TestCategoryLayer(unittest.TestCase):
 
     def setUp(self):
-        self.gateway = CSVGateway(test_file_path("example.csv"))
-        self.gateway.open()
+        self.source = CategoryInfoSource(CSVRawSource(test_file_path("example.csv")), Preprocessor())
+        self.source.open()
 
     def test_pairwise_merge(self):
-        layer = CategoryLayer.build_singleton_layer(self.gateway.iterate())
+        layer = CategoryLayer.build_singleton_layer(self.source.iterate())
         expected_layer = CategoryLayer([
             layer.groups[0],
             layer.groups[1] + layer.groups[2]
@@ -23,7 +24,7 @@ class TestCategoryLayer(unittest.TestCase):
         self.assertEqual(expected_layer, layer.merge_groups(layer.groups[1], layer.groups[2]))
 
     def test_build_parent_layer(self):
-        layer = CategoryLayer.build_singleton_layer(self.gateway.iterate())
+        layer = CategoryLayer.build_singleton_layer(self.source.iterate())
         merged = layer.merge_groups(layer.groups[0], layer.groups[1])
         expected_parent = CategoryLayer([
             layer.groups[2],

@@ -2,7 +2,8 @@ import unittest
 
 from deltaphi import test_file_path
 from deltaphi.category_info import CategoryLayer
-from deltaphi.gateways import CSVGateway
+from deltaphi.preprocessor import Preprocessor
+from deltaphi.sources import CSVRawSource, CategoryInfoSource
 from deltaphi.metrics import Ranking
 from deltaphi.parent_layer_search import GreedyMergeSearch
 
@@ -16,13 +17,14 @@ class TestParentLayerSearch(unittest.TestCase):
         self.search_impls = [
             GreedyMergeSearch(Ranking())
         ]
-        gateway = CSVGateway(test_file_path("dmoz_arts_7.csv"))
-        gateway.open()
-        self.base_layer = CategoryLayer.build_singleton_layer(gateway.iterate())
+        source = CategoryInfoSource(CSVRawSource(test_file_path("dmoz_arts_7.csv")), Preprocessor())
+        source.open()
+        self.base_layer = CategoryLayer.build_singleton_layer(source.iterate())
 
     def test_implementations(self):
         for search in self.search_impls:
             candidates = search.perform(self.base_layer)
             for candidate in candidates:
-                self.assertTrue(all(len(group) == 1 for group in candidate.groups))
+                self.assertTrue(candidate.is_singleton_layer())
+                # Verifies that we didn't forget any CategoryInfo
                 self.assertEqual(len(self.base_layer.groups), sum(len(group[0].children) for group in candidate.groups))

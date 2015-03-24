@@ -3,7 +3,7 @@ import unittest
 import numpy
 
 from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion
-from deltaphi.category_info import CategoryInfoBuilder, CategoryGroup
+from deltaphi.category_info import CategoryInfoFactory, CategoryGroup, RawCategoryInfo
 
 
 __author__ = 'Emanuele Tamponi'
@@ -12,10 +12,10 @@ __author__ = 'Emanuele Tamponi'
 class TestMetrics(unittest.TestCase):
 
     def setUp(self):
-        builder = CategoryInfoBuilder({"a", "b", "c", "d"})
-        self.ci1 = builder.build_leaf("A", 10, {"a": 9, "b": 1, "c": 2, "d": 9})
-        self.ci2 = builder.build_leaf("A", 10, {"a": 1, "b": 8, "c": 1, "d": 8})
-        self.ci3 = builder.build_leaf("A", 10, {"a": 2, "b": 3, "c": 9, "d": 7})
+        builder = CategoryInfoFactory({"a", "b", "c", "d"})
+        self.ci1 = builder.build(RawCategoryInfo("A", 10, {"a": 9, "b": 1, "c": 2, "d": 9}))
+        self.ci2 = builder.build(RawCategoryInfo("A", 10, {"a": 1, "b": 8, "c": 1, "d": 8}))
+        self.ci3 = builder.build(RawCategoryInfo("A", 10, {"a": 2, "b": 3, "c": 9, "d": 7}))
 
     def test_discriminant(self):
         d = Discriminant()
