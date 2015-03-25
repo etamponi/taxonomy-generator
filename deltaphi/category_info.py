@@ -31,6 +31,20 @@ class CategoryInfo(object):
         return self.category
 
 
+class CategoryInfoFactory(object):
+
+    def __init__(self, terms):
+        self.terms = sortedlist(terms)
+        self.term_positions = {term: i for i, term in enumerate(self.terms)}
+
+    def build(self, raw_category_info):
+        full_frequencies = numpy.zeros(len(self.terms))
+        for term, frequency in raw_category_info.term_frequencies.iteritems():
+            if term in self.term_positions:
+                full_frequencies[self.term_positions[term]] = frequency
+        return CategoryInfo(raw_category_info.category, raw_category_info.documents, self.terms, full_frequencies, None)
+
+
 class CategoryGroup(object):
 
     def __init__(self, info_iterable):
@@ -99,17 +113,3 @@ class CategoryLayer(object):
 
     def __repr__(self):
         return "Layer: {}".format(list(self.groups))
-
-
-class CategoryInfoFactory(object):
-
-    def __init__(self, terms):
-        self.terms = sortedlist(terms)
-        self.term_positions = {term: i for i, term in enumerate(self.terms)}
-
-    def build(self, raw_category_info):
-        full_frequencies = numpy.zeros(len(self.terms))
-        for term, frequency in raw_category_info.term_frequencies.iteritems():
-            if term in self.term_positions:
-                full_frequencies[self.term_positions[term]] = frequency
-        return CategoryInfo(raw_category_info.category, raw_category_info.documents, self.terms, full_frequencies, None)
