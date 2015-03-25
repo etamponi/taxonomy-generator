@@ -32,6 +32,17 @@ class GroupMetric(object):
         pass
 
 
+class CharacteristicTerms(GroupMetric):
+
+    def __init__(self, characteristic, discriminant):
+        self.characteristic = characteristic
+        self.discriminant = discriminant
+        self.area_bound = CheckerBoard("right")
+
+    def evaluate(self, group):
+        pass
+
+
 class IntegralMetric(GroupMetric):
 
     def __init__(self, characteristic, discriminant, area_bounds):

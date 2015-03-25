@@ -62,6 +62,12 @@ class CategoryGroup(object):
         merged_frequencies = sum(ci.frequencies for ci in self)
         return CategoryInfo(merged_category, merged_documents, self.terms, merged_frequencies, self)
 
+    def one_vs_siblings(self):
+        for info in self.infos:
+            other = CategoryGroup(self.infos)
+            other.infos.remove(info)
+            yield info, other.build_parent_info()
+
     def __repr__(self):
         return repr(list(self.infos))
 
