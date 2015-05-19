@@ -1,11 +1,10 @@
 import unittest
 
 import numpy
+import deltaphi.sources
 
 from deltaphi.category_info import RawCategoryInfo, CategoryInfoFactory
 from deltaphi.filter import Filter
-from deltaphi.sources import CategoryInfoSource
-import sources
 from deltaphi import test_file_path
 
 
@@ -16,7 +15,7 @@ class TestRawSources(unittest.TestCase):
 
     def setUp(self):
         self.source_impls = [
-            sources.CSVRawSource(test_file_path("example.csv"))
+            deltaphi.sources.CSVRawSource(test_file_path("example.csv"))
         ]
         self.expected_infos = [
             RawCategoryInfo("A", 100, {"a": 40, "b": 60}),
@@ -47,7 +46,9 @@ class TestCategoryInfoSource(unittest.TestCase):
             factory.build(RawCategoryInfo("B", 80, {u"b": 20, u"c": 70, u"d": 30})),
             factory.build(RawCategoryInfo("C", 30, {u"a": 30, u"c": 20}))
         ]
-        source = CategoryInfoSource(sources.CSVRawSource(test_file_path("example.csv")), Filter())
+        source = deltaphi.sources.CategoryInfoSource(
+            deltaphi.sources.CSVRawSource(test_file_path("example.csv")), Filter()
+        )
         source.open()
         for expected_info, actual_info in zip(expected_infos, source.iterate()):
             self.assertEqual(expected_info.category, actual_info.category)
