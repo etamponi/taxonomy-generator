@@ -35,8 +35,8 @@ class TestMetrics(unittest.TestCase):
 
     def test_separability(self):
         sep = Separability()
-        expected_cohesion = 0.60
-        self.assertAlmostEqual(expected_cohesion, sep.evaluate(CategoryGroup([self.ci1, self.ci2, self.ci3])), 2)
+        expected_separability = 0.60
+        self.assertAlmostEqual(expected_separability, sep.evaluate(CategoryGroup([self.ci1, self.ci2, self.ci3])), 2)
 
     def test_pairwise_cohesion(self):
         coh = Cohesion()
@@ -48,6 +48,3 @@ class TestMetrics(unittest.TestCase):
         coh = Cohesion()
         expected_cohesion = 0.51
         self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup([self.ci1, self.ci2, self.ci3])), 2)
-
-    def test_characteristic_terms(self):
-        pass
