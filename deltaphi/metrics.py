@@ -40,13 +40,13 @@ class CharacteristicTerms(GroupMetric):
         self.area_bound = CheckerBoard("right")
 
     def evaluate(self, group):
-        ret = numpy.ones(len(group.terms))
+        insiders = numpy.zeros(len(group.terms))
         for ci1, ci2 in group.one_vs_siblings():
             phis = self.characteristic.pairwise_evaluate(ci1, ci2)
             deltas = self.discriminant.pairwise_evaluate(ci1, ci2)
-            inside = self.area_bound.is_inside(phis, deltas)
-            ret &= inside
-        return ret
+            insiders += self.area_bound.is_inside(phis, deltas)
+        # Majority vote
+        return numpy.asarray(insiders > (len(group) / 2), dtype=int)
 
 
 class IntegralMetric(GroupMetric):
