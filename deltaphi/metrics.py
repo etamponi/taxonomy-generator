@@ -34,9 +34,9 @@ class GroupMetric(object):
 
 class CharacteristicTerms(GroupMetric):
 
-    def __init__(self, characteristic, discriminant):
-        self.characteristic = characteristic
-        self.discriminant = discriminant
+    def __init__(self):
+        self.characteristic = Characteristic()
+        self.discriminant = Discriminant()
         self.area_bound = CheckerBoard("right")
 
     def evaluate(self, group):
@@ -46,14 +46,14 @@ class CharacteristicTerms(GroupMetric):
             deltas = self.discriminant.pairwise_evaluate(ci1, ci2)
             inside = self.area_bound.is_inside(phis, deltas)
             ret &= inside
-        return inside
+        return ret
 
 
 class IntegralMetric(GroupMetric):
 
-    def __init__(self, characteristic, discriminant, area_bounds):
-        self.characteristic = characteristic
-        self.discriminant = discriminant
+    def __init__(self, area_bounds):
+        self.characteristic = Characteristic()
+        self.discriminant = Discriminant()
         self.area_bounds = area_bounds
 
     def pairwise_evaluate(self, ci1, ci2):
@@ -75,7 +75,7 @@ class IntegralMetric(GroupMetric):
 class Separability(IntegralMetric):
 
     def __init__(self):
-        super(Separability, self).__init__(Characteristic(), Discriminant(), CheckerBoard("up", "down"))
+        super(Separability, self).__init__(CheckerBoard("up", "down"))
 
     def integrate(self, phis, deltas, inside):
         den = inside.sum()
@@ -85,7 +85,7 @@ class Separability(IntegralMetric):
 class Cohesion(IntegralMetric):
 
     def __init__(self):
-        super(Cohesion, self).__init__(Characteristic(), Discriminant(), CheckerBoard("right"))
+        super(Cohesion, self).__init__(CheckerBoard("right"))
 
     def integrate(self, phis, deltas, inside):
         den = inside.sum()

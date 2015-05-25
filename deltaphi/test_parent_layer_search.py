@@ -2,6 +2,7 @@ import unittest
 
 from deltaphi import test_file_path
 from deltaphi.category_info import CategoryLayer
+from deltaphi.filter import Filter
 from deltaphi.sources import CSVRawSource, CategoryInfoSource
 from deltaphi.metrics import GroupScore
 from deltaphi.parent_layer_search import GreedyMergeSearch, ClusteringSearch
@@ -17,7 +18,8 @@ class TestParentLayerSearch(unittest.TestCase):
             ClusteringSearch(GroupScore(), 10)
         ]
         source = CategoryInfoSource(
-            CSVRawSource(test_file_path("dmoz_arts_7.csv"))
+            CSVRawSource(test_file_path("dmoz_arts_7.csv")),
+            Filter()
         )
         source.open()
         self.base_layer = CategoryLayer.build_singleton_layer(source.iterate())
@@ -28,4 +30,7 @@ class TestParentLayerSearch(unittest.TestCase):
             for candidate in candidates:
                 self.assertTrue(candidate.is_singleton_layer())
                 # Verifies that we didn't forget any CategoryInfo
-                self.assertEqual(len(self.base_layer.groups), sum(len(group[0].children) for group in candidate.groups))
+                self.assertEqual(
+                    len(self.base_layer.groups),
+                    sum(len(group[0].child_group) for group in candidate.groups)
+                )

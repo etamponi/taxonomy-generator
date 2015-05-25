@@ -48,3 +48,6 @@ class TestMetrics(unittest.TestCase):
         coh = Cohesion()
         expected_cohesion = 0.51
         self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup([self.ci1, self.ci2, self.ci3])), 2)
+
+    def test_characteristic_terms(self):
+        pass

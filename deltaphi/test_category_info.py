@@ -18,7 +18,7 @@ class TestCategoryInfo(unittest.TestCase):
         self.assertIsInstance(ci.frequencies, numpy.ndarray)
         self.assertEqual("Name", ci.category)
         self.assertEqual(100, ci.documents)
-        self.assertEqual(None, ci.children)
+        self.assertEqual(None, ci.child_group)
         numpy.testing.assert_array_equal([10, 30, 80], ci.frequencies)
 
     def test_build_parent_pairwise(self):
@@ -28,7 +28,7 @@ class TestCategoryInfo(unittest.TestCase):
         numpy.testing.assert_array_equal([50, 40, 100], merged.frequencies)
         self.assertEqual("(C1+C2)", merged.category)
         self.assertEqual(180, merged.documents)
-        self.assertEqual(CategoryGroup([ci1, ci2]), merged.children)
+        self.assertEqual(CategoryGroup([ci1, ci2]), merged.child_group)
 
     def test_build_parent_multiple(self):
         ci1 = self.builder.build(RawCategoryInfo("C1", 100, {"a": 50, "c": 80}))
@@ -38,7 +38,7 @@ class TestCategoryInfo(unittest.TestCase):
         numpy.testing.assert_array_equal([70, 60, 130], merged.frequencies)
         self.assertEqual("(C1+C2+C3)", merged.category)
         self.assertEqual(310, merged.documents)
-        self.assertEqual(CategoryGroup([ci1, ci2, ci3]), merged.children)
+        self.assertEqual(CategoryGroup([ci1, ci2, ci3]), merged.child_group)
 
     def test_hierarchical_build_node(self):
         ci1 = self.builder.build(RawCategoryInfo("C1", 100, {"a": 50, "c": 80}))
@@ -49,7 +49,7 @@ class TestCategoryInfo(unittest.TestCase):
         numpy.testing.assert_array_equal([70, 60, 130], merged.frequencies)
         self.assertEqual("((C1+C2)+C3)", merged.category)
         self.assertEqual(310, merged.documents)
-        self.assertEqual(CategoryGroup([ci3, middle]), merged.children)
+        self.assertEqual(CategoryGroup([ci3, middle]), merged.child_group)
 
     def test_category_group_one_vs_siblings(self):
         ci1 = self.builder.build(RawCategoryInfo("C1", 100, {"a": 50, "c": 80}))

@@ -17,12 +17,12 @@ class RawCategoryInfo(object):
 
 class CategoryInfo(object):
 
-    def __init__(self, category, documents, terms, frequencies, children):
+    def __init__(self, category, documents, terms, frequencies, child_group):
         self.category = category
         self.documents = documents
         self.terms = terms
         self.frequencies = frequencies
-        self.children = children
+        self.child_group = child_group
 
     def __cmp__(self, other):
         return cmp(self.category, other.category)
