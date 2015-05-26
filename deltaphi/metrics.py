@@ -2,8 +2,7 @@ import itertools
 
 import numpy
 
-from deltaphi.area_bounds import CheckerBoard
-
+from deltaphi import shapes
 
 __author__ = 'Emanuele Tamponi'
 
@@ -26,6 +25,19 @@ class Characteristic(PairwiseMetric):
         return ci1.frequencies / ci1.documents + ci2.frequencies / ci2.documents - 1.0
 
 
+class PhiDelta(PairwiseMetric):
+
+    def __init__(self):
+        self.characteristic = Characteristic()
+        self.discriminant = Discriminant()
+
+    def pairwise_evaluate(self, ci1, ci2):
+        return numpy.vstack((
+            self.characteristic.pairwise_evaluate(ci1, ci2),
+            self.discriminant.pairwise_evaluate(ci1, ci2)
+        )).transpose()
+
+
 class GroupMetric(object):
 
     def evaluate(self, group):
@@ -34,33 +46,34 @@ class GroupMetric(object):
 
 class CharacteristicTerms(GroupMetric):
 
-    def __init__(self):
-        self.characteristic = Characteristic()
-        self.discriminant = Discriminant()
-        self.area_bound = CheckerBoard("right")
+    def __init__(self, characteristic_area=shapes.PSphere(center=numpy.asarray([1.0, 0.0]), radius=1, p=1)):
+        """
+        :type characteristic_area: shapes.Shape
+        """
+        self.phi_delta = PhiDelta()
+        self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & characteristic_area
 
     def evaluate(self, group):
         insiders = numpy.zeros(len(group.terms))
         for ci1, ci2 in group.one_vs_siblings():
-            phis = self.characteristic.pairwise_evaluate(ci1, ci2)
-            deltas = self.discriminant.pairwise_evaluate(ci1, ci2)
-            insiders += self.area_bound.is_inside(phis, deltas)
+            insiders += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
         # Majority vote
         return numpy.asarray(insiders > (len(group) / 2), dtype=int)
 
 
 class IntegralMetric(GroupMetric):
 
-    def __init__(self, area_bounds):
-        self.characteristic = Characteristic()
-        self.discriminant = Discriminant()
-        self.area_bounds = area_bounds
+    def __init__(self, area):
+        """
+        :type area: shapes.Shape
+        """
+        self.phi_delta = PhiDelta()
+        self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & area
 
     def pairwise_evaluate(self, ci1, ci2):
-        phis = self.characteristic.pairwise_evaluate(ci1, ci2)
-        deltas = self.discriminant.pairwise_evaluate(ci1, ci2)
-        inside = self.area_bounds.is_inside(phis, deltas)
-        return self.integrate(phis, deltas, inside)
+        points = self.phi_delta.pairwise_evaluate(ci1, ci2)
+        inside = self.area.contains(points)
+        return self.integrate(points, inside)
 
     def evaluate(self, group):
         metric = 1
@@ -68,28 +81,30 @@ class IntegralMetric(GroupMetric):
             metric = min(metric, self.pairwise_evaluate(ci1, ci2))
         return metric
 
-    def integrate(self, phis, deltas, inside):
+    def integrate(self, points, inside):
         pass
 
 
 class Separability(IntegralMetric):
 
     def __init__(self):
-        super(Separability, self).__init__(CheckerBoard("up", "down"))
+        super(Separability, self).__init__(
+            shapes.PSphere(numpy.asarray([0.0, 1.0]), 1, 1) | shapes.PSphere(numpy.asarray([0.0, -1.0]), 1, 1)
+        )
 
-    def integrate(self, phis, deltas, inside):
+    def integrate(self, points, inside):
         den = inside.sum()
-        return numpy.dot(abs(deltas) - abs(phis), inside) / den if den > 0 else 0
+        return numpy.dot(abs(points[:, 1]) - abs(points[:, 0]), inside) / den if den > 0 else 0
 
 
 class Cohesion(IntegralMetric):
 
     def __init__(self):
-        super(Cohesion, self).__init__(CheckerBoard("right"))
+        super(Cohesion, self).__init__(shapes.PSphere(numpy.asarray([1.0, 0.0]), 1, 1))
 
-    def integrate(self, phis, deltas, inside):
+    def integrate(self, points, inside):
         den = inside.sum()
-        return numpy.dot(numpy.sqrt(phis**2 + deltas**2), inside) / den if den > 0 else 0
+        return numpy.dot(numpy.sqrt(numpy.sum(points**2, axis=1)), inside) / den if den > 0 else 0
 
 
 class GroupScore(GroupMetric):

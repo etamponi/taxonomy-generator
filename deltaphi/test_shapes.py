@@ -12,13 +12,39 @@ class TestShapes(unittest.TestCase):
     def setUp(self):
         self.shape_checks = [
             {
-                'shape': shapes.Diamond(),
-                'points_inside': [
+                'shape': shapes.PSphere(center=numpy.asarray([0.0, 0.0]), radius=1, p=1),
+                'points_inside': numpy.asarray((
                     (1.0, 0.0), (0.0, 1.0), (-1.0, 0.0), (0.0, -1.0), (0.5, 0.5), (-0.5, -0.5)
-                ],
-                'points_outside': [
+                )),
+                'points_outside': numpy.asarray((
                     (1.0, 1.0), (-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0)
-                ]
+                ))
+            },
+            {
+                'shape': shapes.PSphere(
+                    center=numpy.asarray([1.0, 0.0]), radius=0.5, p=1
+                ) | shapes.PSphere(
+                    center=numpy.asarray([-1.0, 0.0]), radius=0.5, p=1
+                ),
+                'points_inside': numpy.asarray((
+                    (1.0, 0.0), (0.5, 0.0), (-1.0, 0.0), (-0.5, 0.0)
+                )),
+                'points_outside': numpy.asarray((
+                    (0.0, 1.0), (0.0, -1.0), (0.0, 0.5), (0.0, -0.5)
+                ))
+            },
+            {
+                'shape': shapes.PSphere(
+                    center=numpy.asarray([0.5, 0.0]), radius=1, p=1
+                ) & shapes.PSphere(
+                    center=numpy.asarray([-0.5, 0.0]), radius=1, p=1
+                ),
+                'points_inside': numpy.asarray((
+                    (0.0, 0.0), (0.5, 0.0), (-0.5, 0.0), (0.0, 0.5)
+                )),
+                'points_outside': numpy.asarray((
+                    (1.0, 0.0), (-1.0, 0.0)
+                ))
             }
         ]
 

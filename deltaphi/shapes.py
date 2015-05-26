@@ -1,18 +1,60 @@
 import numpy
+from scipy.spatial import distance
 
 __author__ = 'Emanuele'
 
 
 class Shape(object):
 
-    def contains_single(self, point):
+    def _contains_impl(self, points):
         pass
 
     def contains(self, points):
-        return numpy.asarray([self.contains_single(point) for point in points], dtype=int)
+        return self._contains_impl(points).astype(int).reshape((len(points),))
+
+    def __or__(self, other):
+        return ShapeUnion(self, other)
+
+    def __and__(self, other):
+        return ShapeIntersection(self, other)
 
 
-class Diamond(Shape):
+class ShapeGroup(Shape):
 
-    def contains_single(self, point):
-        return abs(point[0]) + abs(point[1]) <= 1.0
+    def __init__(self, a, b):
+        """
+        :type a: Shape | ShapeGroup
+        :type b: Shape | ShapeGroup
+        """
+        self.shapes = a.shapes if isinstance(a, type(self)) else [a]
+        self.shapes += b.shapes if isinstance(b, type(self)) else [b]
+
+
+class ShapeUnion(ShapeGroup):
+
+    def __init__(self, a, b):
+        super(ShapeUnion, self).__init__(a, b)
+
+    def _contains_impl(self, points):
+        return numpy.any(numpy.asarray([shape.contains(points) for shape in self.shapes]), axis=0)
+
+
+class ShapeIntersection(ShapeGroup):
+
+    def __init__(self, a, b):
+        super(ShapeIntersection, self).__init__(a, b)
+
+    def _contains_impl(self, points):
+        return numpy.all(numpy.asarray([shape.contains(points) for shape in self.shapes]), axis=0)
+
+
+class PSphere(Shape):
+
+    def __init__(self, center, radius, p):
+        # Represent it as a single row matrix as it has to be used with cdist
+        self.center = center.reshape((1, 2))
+        self.radius = radius
+        self.p = p
+
+    def _contains_impl(self, points):
+        return distance.cdist(self.center, points, metric='minkowski', p=self.p) <= self.radius
