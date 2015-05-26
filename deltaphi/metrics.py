@@ -87,10 +87,10 @@ class IntegralMetric(GroupMetric):
 
 class Separability(IntegralMetric):
 
-    def __init__(self):
-        super(Separability, self).__init__(
-            shapes.PSphere(numpy.asarray([0.0, 1.0]), 1, 1) | shapes.PSphere(numpy.asarray([0.0, -1.0]), 1, 1)
-        )
+    DEFAULT_AREA = shapes.PSphere(numpy.asarray([0.0, 1.0]), 1, 1) | shapes.PSphere(numpy.asarray([0.0, -1.0]), 1, 1)
+
+    def __init__(self, area=DEFAULT_AREA):
+        super(Separability, self).__init__(area)
 
     def integrate(self, points, inside):
         den = inside.sum()
@@ -99,8 +99,10 @@ class Separability(IntegralMetric):
 
 class Cohesion(IntegralMetric):
 
-    def __init__(self):
-        super(Cohesion, self).__init__(shapes.PSphere(numpy.asarray([1.0, 0.0]), 1, 1))
+    DEFAULT_AREA = shapes.PSphere(numpy.asarray([1.0, 0.0]), 1, 1)
+
+    def __init__(self, area=DEFAULT_AREA):
+        super(Cohesion, self).__init__(area)
 
     def integrate(self, points, inside):
         den = inside.sum()
@@ -109,9 +111,9 @@ class Cohesion(IntegralMetric):
 
 class GroupScore(GroupMetric):
 
-    def __init__(self):
-        self.separability = Separability()
-        self.cohesion = Cohesion()
+    def __init__(self, separability_area=Separability.DEFAULT_AREA, cohesion_area=Cohesion.DEFAULT_AREA):
+        self.separability = Separability(separability_area)
+        self.cohesion = Cohesion(cohesion_area)
 
     def evaluate(self, group):
         return self.separability.evaluate(group) * self.cohesion.evaluate(group)
