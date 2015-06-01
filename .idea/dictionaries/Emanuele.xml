@@ -4,6 +4,7 @@
       <w>deltaphi</w>
       <w>infos</w>
       <w>lemmatizer</w>
+      <w>nfkc</w>
       <w>tamponi</w>
     </words>
   </dictionary>

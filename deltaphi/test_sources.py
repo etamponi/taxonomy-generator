@@ -1,10 +1,10 @@
 import unittest
 
 import numpy
-import deltaphi.sources
 
+import deltaphi.sources
 from deltaphi.category_info import RawCategoryInfo, CategoryInfoFactory
-from deltaphi.filter import Filter
+from deltaphi.raw_filter import RawFilter
 from deltaphi import test_file_path
 
 
@@ -47,7 +47,7 @@ class TestCategoryInfoSource(unittest.TestCase):
             factory.build(RawCategoryInfo("C", 30, {u"a": 30, u"c": 20}))
         ]
         source = deltaphi.sources.CategoryInfoSource(
-            deltaphi.sources.CSVRawSource(test_file_path("example.csv")), Filter()
+            deltaphi.sources.CSVRawSource(test_file_path("example.csv")), RawFilter()
         )
         source.open()
         for expected_info, actual_info in zip(expected_infos, source.iterate()):

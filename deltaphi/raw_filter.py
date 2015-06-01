@@ -6,7 +6,7 @@ from deltaphi.category_info import RawCategoryInfo
 __author__ = 'Emanuele Tamponi'
 
 
-class Filter(object):
+class RawFilter(object):
 
     def __init__(self, min_length=1, normalization="NFKC", lemmatizer=None, stopwords=None):
         self.min_length = min_length
