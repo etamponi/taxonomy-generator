@@ -30,6 +30,9 @@ class CategoryInfo(object):
     def __repr__(self):
         return self.category
 
+    def __hash__(self):
+        return hash(self.category) + hash(self.documents) + hash(self.terms) + hash(self.frequencies)
+
 
 class CategoryInfoFactory(object):
 

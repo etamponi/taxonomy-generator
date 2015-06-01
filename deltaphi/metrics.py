@@ -47,9 +47,6 @@ class GroupMetric(object):
 class CharacteristicTerms(GroupMetric):
 
     def __init__(self, characteristic_area=shapes.PSphere(center=numpy.asarray([1.0, 0.0]), radius=1, p=1)):
-        """
-        :type characteristic_area: shapes.Shape
-        """
         self.phi_delta = PhiDelta()
         self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & characteristic_area
 
@@ -127,7 +124,7 @@ class LayerMetric(object):
         pass
 
 
-class LayerScore(LayerMetric):
+class LookAhead(LayerMetric):
 
     def evaluate(self, layer):
         pass
