@@ -1,10 +1,10 @@
 import unittest
 
+from blist import sortedlist
 import numpy
 
-from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion, FakePhiDelta
-from deltaphi.category_info import CategoryInfoFactory, CategoryGroup, RawCategoryInfo
-
+from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion, PairwiseMetric
+from deltaphi.category_info import CategoryInfoFactory, CategoryGroup, RawCategoryInfo, CategoryInfo
 
 __author__ = 'Emanuele Tamponi'
 
@@ -51,18 +51,21 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup([self.ci1, self.ci2, self.ci3])), 2)
 
     def test_fake_phi_delta(self):
+        ci1 = FakeCategoryInfo("A")
+        ci2 = FakeCategoryInfo("B")
+        ci3 = FakeCategoryInfo("C")
         phi_delta_map = {
-            (self.ci1, self.ci2): numpy.asarray([
+            (ci1, ci2): numpy.asarray([
                 [0.7, 0.2],
                 [0.1, 0.5],
                 [0.6, 0.2]
             ]),
-            (self.ci1, self.ci3): numpy.asarray([
+            (ci1, ci3): numpy.asarray([
                 [0.3, 0.1],
                 [-0.1, -1.0],
                 [0.5, -0.4]
             ]),
-            (self.ci2, self.ci3): numpy.asarray([
+            (ci2, ci3): numpy.asarray([
                 [0.7, 0.1],
                 [0.1, 1.0],
                 [0.5, 0.5]
@@ -70,12 +73,34 @@ class TestMetrics(unittest.TestCase):
         }
         fpd = FakePhiDelta()
         fpd.add_phi_delta_mapping(phi_delta_map)
-        numpy.testing.assert_array_equal(phi_delta_map[(self.ci1, self.ci2)], fpd.pairwise_evaluate(self.ci1, self.ci2))
+        numpy.testing.assert_array_equal(phi_delta_map[(ci1, ci2)], fpd.pairwise_evaluate(ci1, ci2))
         # Automatic inversion of delta
         numpy.testing.assert_array_equal(
             numpy.asarray([
                 [0.7, -0.2],
                 [0.1, -0.5],
                 [0.6, -0.2]
-            ]), fpd.pairwise_evaluate(self.ci2, self.ci1)
+            ]), fpd.pairwise_evaluate(ci2, ci1)
         )
+
+
+class FakeCategoryInfo(CategoryInfo):
+
+    def __init__(self, category):
+        super(FakeCategoryInfo, self).__init__(category, 100, sortedlist([]), numpy.zeros(0), None)
+
+
+class FakePhiDelta(PairwiseMetric):
+
+    def __init__(self):
+        self.phi_delta_mapping = {}
+
+    def add_phi_delta_mapping(self, mapping):
+        for (ci1, ci2), phi_delta in mapping.iteritems():
+            self.phi_delta_mapping[(ci1, ci2)] = phi_delta
+            self.phi_delta_mapping[(ci2, ci1)] = numpy.asarray([
+                phi_delta[:, 0], -phi_delta[:, 1]
+            ]).transpose()
+
+    def pairwise_evaluate(self, ci1, ci2):
+        return self.phi_delta_mapping[(ci1, ci2)]
