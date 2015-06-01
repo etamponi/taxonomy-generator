@@ -53,22 +53,11 @@ class TestMetrics(unittest.TestCase):
     def test_fake_phi_delta(self):
         ci1 = FakeCategoryInfo("A")
         ci2 = FakeCategoryInfo("B")
-        ci3 = FakeCategoryInfo("C")
         phi_delta_map = {
             (ci1, ci2): numpy.asarray([
                 [0.7, 0.2],
                 [0.1, 0.5],
                 [0.6, 0.2]
-            ]),
-            (ci1, ci3): numpy.asarray([
-                [0.3, 0.1],
-                [-0.1, -1.0],
-                [0.5, -0.4]
-            ]),
-            (ci2, ci3): numpy.asarray([
-                [0.7, 0.1],
-                [0.1, 1.0],
-                [0.5, 0.5]
             ])
         }
         fpd = FakePhiDelta()
