@@ -3,7 +3,7 @@ import unittest
 from blist import sortedlist
 import numpy
 
-from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion, PairwiseMetric
+from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion, PairwiseMetric, CharacteristicTerms
 from deltaphi.category_info import CategoryInfoFactory, CategoryGroup, RawCategoryInfo, CategoryInfo
 
 __author__ = 'Emanuele Tamponi'
@@ -51,8 +51,8 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup([self.ci1, self.ci2, self.ci3])), 2)
 
     def test_fake_phi_delta(self):
-        ci1 = FakeCategoryInfo("A")
-        ci2 = FakeCategoryInfo("B")
+        ci1 = FakeCategoryInfo("A", 3)
+        ci2 = FakeCategoryInfo("B", 3)
         phi_delta_map = {
             (ci1, ci2): numpy.asarray([
                 [0.7, 0.2],
@@ -72,11 +72,40 @@ class TestMetrics(unittest.TestCase):
             ]), fpd.pairwise_evaluate(ci2, ci1)
         )
 
+    def test_characteristic_terms(self):
+        ci1 = FakeCategoryInfo("A", 3)
+        ci2 = FakeCategoryInfo("B", 3)
+        ci3 = FakeCategoryInfo("C", 3)
+        ci12 = CategoryGroup([ci1, ci2]).build_parent_info()
+        ci13 = CategoryGroup([ci1, ci3]).build_parent_info()
+        ci23 = CategoryGroup([ci2, ci3]).build_parent_info()
+        phi_delta_map = {
+            (ci1, ci23): [
+                [1.0, 0.0],
+                [1.0, 0.0],
+                [0.0, 1.0]
+            ],
+            (ci2, ci13): [
+                [0.0, 1.0],
+                [1.0, 0.0],
+                [1.0, 0.0]
+            ],
+            (ci3, ci12): [
+                [0.0, 1.0],
+                [1.0, 0.0],
+                [1.0, 0.0]
+            ]
+        }
+        fpd = FakePhiDelta()
+        fpd.add_phi_delta_mapping(phi_delta_map)
+        ct = CharacteristicTerms(phi_delta=fpd)
+        numpy.testing.assert_array_equal(numpy.asarray([0, 1, 1]), ct.evaluate(CategoryGroup([ci1, ci2, ci3])))
+
 
 class FakeCategoryInfo(CategoryInfo):
 
-    def __init__(self, category):
-        super(FakeCategoryInfo, self).__init__(category, 100, sortedlist([]), numpy.zeros(0), None)
+    def __init__(self, category, num_terms):
+        super(FakeCategoryInfo, self).__init__(category, 100, sortedlist(range(num_terms)), numpy.zeros(0), None)
 
 
 class FakePhiDelta(PairwiseMetric):
@@ -86,6 +115,7 @@ class FakePhiDelta(PairwiseMetric):
 
     def add_phi_delta_mapping(self, mapping):
         for (ci1, ci2), phi_delta in mapping.iteritems():
+            phi_delta = numpy.asarray(phi_delta)
             self.phi_delta_mapping[(ci1, ci2)] = phi_delta
             self.phi_delta_mapping[(ci2, ci1)] = numpy.asarray([
                 phi_delta[:, 0], -phi_delta[:, 1]
