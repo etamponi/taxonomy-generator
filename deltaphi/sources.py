@@ -43,18 +43,18 @@ class CSVRawSource(RawSource):
 
 class CategoryInfoSource(object):
 
-    def __init__(self, raw_source, flt):
+    def __init__(self, raw_source, raw_filter):
         self.raw_source = raw_source
-        self.filter = flt
+        self.raw_filter = raw_filter
         self.factory = None
 
     def open(self):
         self.raw_source.open()
         temporary = RawCategoryInfo("", 0, {term: 0 for term in self.raw_source.terms})
-        terms = self.filter.apply(temporary).term_frequencies.keys()
+        terms = self.raw_filter.apply(temporary).term_frequencies.keys()
         self.factory = CategoryInfoFactory(terms)
 
     def iterate(self):
         for raw in self.raw_source.iterate():
-            raw = self.filter.apply(raw)
+            raw = self.raw_filter.apply(raw)
             yield self.factory.build(raw)
