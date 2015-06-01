@@ -23,6 +23,7 @@ class CategoryInfo(object):
         self.terms = terms
         self.frequencies = frequencies
         self.child_group = child_group
+        self._hash = hash(self.category) + hash(self.documents) + hash(self.terms) + hash(tuple(self.frequencies))
 
     def __cmp__(self, other):
         return cmp(self.category, other.category)
@@ -31,7 +32,7 @@ class CategoryInfo(object):
         return self.category
 
     def __hash__(self):
-        return hash(self.category) + hash(self.documents) + hash(self.terms) + hash(self.frequencies)
+        return self._hash
 
 
 class CategoryInfoFactory(object):

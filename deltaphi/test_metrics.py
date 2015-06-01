@@ -2,7 +2,7 @@ import unittest
 
 import numpy
 
-from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion
+from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion, FakePhiDelta
 from deltaphi.category_info import CategoryInfoFactory, CategoryGroup, RawCategoryInfo
 
 
@@ -21,6 +21,7 @@ class TestMetrics(unittest.TestCase):
         d = Discriminant()
         expected_discriminant = 0.1 * numpy.asarray([8, -7, 1, 1])
         numpy.testing.assert_array_almost_equal(expected_discriminant, d.pairwise_evaluate(self.ci1, self.ci2))
+        numpy.testing.assert_array_almost_equal(-expected_discriminant, d.pairwise_evaluate(self.ci2, self.ci1))
 
     def test_characteristic(self):
         c = Characteristic()
@@ -48,3 +49,33 @@ class TestMetrics(unittest.TestCase):
         coh = Cohesion()
         expected_cohesion = 0.51
         self.assertAlmostEqual(expected_cohesion, coh.evaluate(CategoryGroup([self.ci1, self.ci2, self.ci3])), 2)
+
+    def test_fake_phi_delta(self):
+        phi_delta_map = {
+            (self.ci1, self.ci2): numpy.asarray([
+                [0.7, 0.2],
+                [0.1, 0.5],
+                [0.6, 0.2]
+            ]),
+            (self.ci1, self.ci3): numpy.asarray([
+                [0.3, 0.1],
+                [-0.1, -1.0],
+                [0.5, -0.4]
+            ]),
+            (self.ci2, self.ci3): numpy.asarray([
+                [0.7, 0.1],
+                [0.1, 1.0],
+                [0.5, 0.5]
+            ])
+        }
+        fpd = FakePhiDelta()
+        fpd.add_phi_delta_mapping(phi_delta_map)
+        numpy.testing.assert_array_equal(phi_delta_map[(self.ci1, self.ci2)], fpd.pairwise_evaluate(self.ci1, self.ci2))
+        # Automatic inversion of delta
+        numpy.testing.assert_array_equal(
+            numpy.asarray([
+                [0.7, -0.2],
+                [0.1, -0.5],
+                [0.6, -0.2]
+            ]), fpd.pairwise_evaluate(self.ci2, self.ci1)
+        )
