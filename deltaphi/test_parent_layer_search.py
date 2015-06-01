@@ -4,7 +4,7 @@ from deltaphi import test_file_path
 from deltaphi.category_info import CategoryLayer
 from deltaphi.raw_filter import RawFilter
 from deltaphi.sources import CSVRawSource, CategoryInfoSource
-from deltaphi.metrics import GroupScore
+from deltaphi.metrics import GeometricMeanScore
 from deltaphi.parent_layer_search import GreedyMergeSearch, ClusteringSearch
 
 __author__ = 'Emanuele Tamponi'
@@ -14,8 +14,8 @@ class TestParentLayerSearch(unittest.TestCase):
 
     def setUp(self):
         self.search_impls = [
-            GreedyMergeSearch(GroupScore()),
-            ClusteringSearch(GroupScore(), 10)
+            GreedyMergeSearch(GeometricMeanScore()),
+            ClusteringSearch(GeometricMeanScore(), 10)
         ]
         source = CategoryInfoSource(
             CSVRawSource(test_file_path("dmoz_arts_7.csv")),

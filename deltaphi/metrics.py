@@ -46,8 +46,10 @@ class GroupMetric(object):
 
 class CharacteristicTerms(GroupMetric):
 
-    def __init__(self, characteristic_area=shapes.PSphere(center=numpy.asarray([1.0, 0.0]), radius=1, p=1)):
-        self.phi_delta = PhiDelta()
+    def __init__(self,
+                 characteristic_area=shapes.PSphere(center=numpy.asarray([1.0, 0.0]), radius=1, p=1),
+                 phi_delta=PhiDelta()):
+        self.phi_delta = phi_delta
         self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & characteristic_area
 
     def evaluate(self, group):
@@ -60,11 +62,11 @@ class CharacteristicTerms(GroupMetric):
 
 class IntegralMetric(GroupMetric):
 
-    def __init__(self, area):
+    def __init__(self, area, phi_delta=PhiDelta()):
         """
         :type area: shapes.Shape
         """
-        self.phi_delta = PhiDelta()
+        self.phi_delta = phi_delta
         self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & area
 
     def pairwise_evaluate(self, ci1, ci2):
@@ -88,8 +90,8 @@ class Separability(IntegralMetric):
         shapes.PSphere(numpy.asarray([0.0, 1.0]), 0.7, 3) | shapes.PSphere(numpy.asarray([0.0, -1.0]), 0.7, 3)
     )
 
-    def __init__(self, area=DEFAULT_AREA):
-        super(Separability, self).__init__(area)
+    def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
+        super(Separability, self).__init__(area, phi_delta)
 
     def integrate(self, points, inside):
         den = inside.sum()
@@ -100,19 +102,22 @@ class Cohesion(IntegralMetric):
 
     DEFAULT_AREA = shapes.PSphere(numpy.asarray([1.0, 0.0]), 0.7, 3)
 
-    def __init__(self, area=DEFAULT_AREA):
-        super(Cohesion, self).__init__(area)
+    def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
+        super(Cohesion, self).__init__(area, phi_delta)
 
     def integrate(self, points, inside):
         den = inside.sum()
         return numpy.dot(numpy.sqrt(numpy.sum(points**2, axis=1)), inside) / den if den > 0 else 0
 
 
-class GroupScore(GroupMetric):
+class GeometricMeanScore(GroupMetric):
 
-    def __init__(self, separability_area=Separability.DEFAULT_AREA, cohesion_area=Cohesion.DEFAULT_AREA):
-        self.separability = Separability(separability_area)
-        self.cohesion = Cohesion(cohesion_area)
+    def __init__(self,
+                 separability_area=Separability.DEFAULT_AREA,
+                 cohesion_area=Cohesion.DEFAULT_AREA,
+                 phi_delta=PhiDelta()):
+        self.separability = Separability(separability_area, phi_delta)
+        self.cohesion = Cohesion(cohesion_area, phi_delta)
 
     def evaluate(self, group):
         return self.separability.evaluate(group) * self.cohesion.evaluate(group)
