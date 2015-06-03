@@ -105,7 +105,9 @@ class TestMetrics(unittest.TestCase):
 class FakeCategoryInfo(CategoryInfo):
 
     def __init__(self, category, num_terms):
-        super(FakeCategoryInfo, self).__init__(category, 100, sortedlist(range(num_terms)), numpy.zeros(0), None)
+        super(FakeCategoryInfo, self).__init__(
+            category, 100, sortedlist(range(num_terms)), numpy.zeros(num_terms), None
+        )
 
 
 class FakePhiDelta(PairwiseMetric):
