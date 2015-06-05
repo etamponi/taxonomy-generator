@@ -31,35 +31,18 @@ class PhiDelta(PairwiseMetric):
     def __init__(self):
         self.characteristic = Characteristic()
         self.discriminant = Discriminant()
+        self._computed = {}
 
     def pairwise_evaluate(self, ci1, ci2):
-        return numpy.vstack((
-            self.characteristic.pairwise_evaluate(ci1, ci2),
-            self.discriminant.pairwise_evaluate(ci1, ci2)
-        )).transpose()
+        phis = self.characteristic.pairwise_evaluate(ci1, ci2)
+        deltas = self.discriminant.pairwise_evaluate(ci1, ci2)
+        return numpy.vstack((phis, deltas)).transpose()
 
 
 class GroupMetric(object):
 
     def evaluate(self, group):
         pass
-
-
-class CharacteristicTerms(GroupMetric):
-
-    def __init__(self,
-                 characteristic_area=shapes.PSphere(center=numpy.asarray([1.0, 0.0]), radius=1, p=1),
-                 phi_delta=PhiDelta()):
-        self.phi_delta = phi_delta
-        self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & characteristic_area
-
-    def evaluate(self, group):
-        insiders = numpy.zeros(len(group.terms))
-        for ci1, ci2 in group.one_vs_siblings():
-            insiders += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
-        # Majority vote
-        # noinspection PyTypeChecker
-        return numpy.asarray(insiders > (len(group) / 2), dtype=int)
 
 
 class IntegralMetric(GroupMetric):
@@ -89,7 +72,7 @@ class IntegralMetric(GroupMetric):
 class Separability(IntegralMetric):
 
     DEFAULT_AREA = (
-        shapes.PSphere(numpy.asarray([0.0, 1.0]), 0.7, 3) | shapes.PSphere(numpy.asarray([0.0, -1.0]), 0.7, 3)
+        shapes.PSphere(numpy.asarray([0.0, 1.0]), 0.8, 4) | shapes.PSphere(numpy.asarray([0.0, -1.0]), 0.8, 4)
     )
 
     def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
@@ -102,7 +85,7 @@ class Separability(IntegralMetric):
 
 class Cohesion(IntegralMetric):
 
-    DEFAULT_AREA = shapes.PSphere(numpy.asarray([1.0, 0.0]), 0.7, 3)
+    DEFAULT_AREA = shapes.PSphere(numpy.asarray([1.0, 0.0]), 0.8, 2)
 
     def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
         super(Cohesion, self).__init__(area, phi_delta)
@@ -124,6 +107,23 @@ class GeometricMeanScore(GroupMetric):
 
     def evaluate(self, group):
         return self.separability.evaluate(group) * self.cohesion.evaluate(group)
+
+
+class CharacteristicTerms(GroupMetric):
+
+    def __init__(self,
+                 characteristic_area=Cohesion.DEFAULT_AREA,
+                 phi_delta=PhiDelta()):
+        self.phi_delta = phi_delta
+        self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & characteristic_area
+
+    def evaluate(self, group):
+        insiders = numpy.zeros(len(group.terms))
+        for ci1, ci2 in group.one_vs_siblings():
+            insiders += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
+        # Majority vote
+        # noinspection PyTypeChecker
+        return numpy.asarray(insiders > (len(group) / 2), dtype=int)
 
 
 class LayerMetric(object):
