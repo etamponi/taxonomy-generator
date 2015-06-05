@@ -161,6 +161,6 @@ class LookAhead(LayerMetric):
     def evaluate(self, layer):
         ret = 0
         for ci, dt in self.discriminant_terms.evaluate(layer).iteritems():
-            ct = self.characteristic_terms.evaluate(ci.child_group)
+            ct = self.characteristic_terms.evaluate(ci.child_group) if ci.child_group is not None else 0
             ret += numpy.sum(dt & ct)
         return ret

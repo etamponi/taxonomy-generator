@@ -81,6 +81,8 @@ class CategoryGroup(object):
         return CategoryInfo(merged_category, merged_documents, self.terms, merged_frequencies, self)
 
     def one_vs_siblings(self):
+        if len(self.infos) == 1:
+            return
         for info in self.infos:
             other = CategoryGroup(self.infos)
             other.infos.remove(info)

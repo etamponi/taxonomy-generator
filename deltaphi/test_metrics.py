@@ -155,6 +155,8 @@ class TestMetrics(unittest.TestCase):
         fpd.add_phi_delta_mapping(phi_delta_map)
         lh = LookAhead(phi_delta=fpd).evaluate(CategoryLayer([g12, g34]).build_parent())
         self.assertEqual(3, lh)
+        lh = LookAhead(phi_delta=fpd).evaluate(CategoryLayer([g12]).build_parent())
+        self.assertEqual(0, lh)
 
 
 class FakeCategoryInfo(CategoryInfo):
