@@ -1,9 +1,5 @@
 import unittest
 
-from nltk.corpus import stopwords
-
-from nltk.stem.wordnet import WordNetLemmatizer
-
 from deltaphi import test_file_path
 from deltaphi.category_info import CategoryLayer
 from deltaphi.raw_filter import RawFilter
@@ -23,7 +19,7 @@ class TestParentLayerSearch(unittest.TestCase):
         ]
         source = CategoryInfoSource(
             CSVRawSource(test_file_path("dmoz_arts_7.csv")),
-            RawFilter(min_length=1, lemmatizer=WordNetLemmatizer(), stopwords=stopwords.words("english"))
+            RawFilter(min_length=3)
         )
         source.open()
         self.base_layer = CategoryLayer.build_singleton_layer(source.iterate())
@@ -37,5 +33,8 @@ class TestParentLayerSearch(unittest.TestCase):
                 # Verifies that we didn't forget any CategoryInfo
                 self.assertEqual(
                     len(self.base_layer.groups),
-                    sum(len(group[0].child_group) for group in candidate.groups)
+                    sum(
+                        len(group[0].child_group) if group[0].child_group is not None else 1
+                        for group in candidate.groups
+                    )
                 )
