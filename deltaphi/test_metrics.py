@@ -4,7 +4,7 @@ from blist import sortedlist
 import numpy
 
 from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion, PairwiseMetric, CharacteristicTerms, \
-    DiscriminantTerms, LookAhead, PairwiseDiscriminantTerms
+    DiscriminantTerms, LookAhead, PairwiseDiscriminantTerms, PairwiseCharacteristicTerms
 from deltaphi.category_info import CategoryInfoFactory, CategoryGroup, RawCategoryInfo, CategoryInfo, CategoryLayer
 
 __author__ = 'Emanuele Tamponi'
@@ -106,6 +106,26 @@ class TestMetrics(unittest.TestCase):
         ct = CharacteristicTerms(phi_delta=fpd)
         numpy.testing.assert_array_equal(numpy.asarray([0, 1, 1]), ct.evaluate(CategoryGroup([ci1, ci2, ci3])))
 
+    def test_pairwise_characteristic_terms(self):
+        ci1 = FakeCategoryInfo("A", 3)
+        ci2 = FakeCategoryInfo("B", 3)
+        ci3 = FakeCategoryInfo("C", 3)
+        phi_delta_map = {
+            (ci1, ci2): [
+                DISC, CHAR, CHAR
+            ],
+            (ci1, ci3): [
+                CHAR, DISC, CHAR
+            ],
+            (ci2, ci3): [
+                CHAR, DISC, CHAR
+            ]
+        }
+        fpd = FakePhiDelta()
+        fpd.add_phi_delta_mapping(phi_delta_map)
+        pct = PairwiseCharacteristicTerms(phi_delta=fpd).evaluate(CategoryGroup([ci1, ci2, ci3]))
+        numpy.testing.assert_array_equal([1, 0, 1], pct)
+
     def test_discriminant_terms(self):
         ci1 = FakeCategoryInfo("A", 4)
         ci2 = FakeCategoryInfo("B", 4)
@@ -113,17 +133,15 @@ class TestMetrics(unittest.TestCase):
         ci12 = CategoryGroup([ci1, ci2]).build_parent_info()
         ci13 = CategoryGroup([ci1, ci3]).build_parent_info()
         ci23 = CategoryGroup([ci2, ci3]).build_parent_info()
-        disc = [0.0, 1.0]
-        char = [1.0, 0.0]
         phi_delta_map = {
             (ci1, ci23): [
-                disc, disc, char, char
+                DISC, DISC, CHAR, CHAR
             ],
             (ci2, ci13): [
-                disc, char, char, disc
+                DISC, CHAR, CHAR, DISC
             ],
             (ci3, ci12): [
-                disc, char, disc, char
+                DISC, CHAR, DISC, CHAR
             ]
         }
         fpd = FakePhiDelta()
@@ -132,6 +150,28 @@ class TestMetrics(unittest.TestCase):
         numpy.testing.assert_array_equal(numpy.asarray([1, 1, 0, 0]), dt[ci1])
         numpy.testing.assert_array_equal(numpy.asarray([1, 0, 0, 1]), dt[ci2])
         numpy.testing.assert_array_equal(numpy.asarray([1, 0, 1, 0]), dt[ci3])
+
+    def test_pairwise_discriminant_terms(self):
+        ci1 = FakeCategoryInfo("A", 4)
+        ci2 = FakeCategoryInfo("B", 4)
+        ci3 = FakeCategoryInfo("C", 4)
+        phi_delta_map = {
+            (ci1, ci2): [
+                DISC, DISC, DISC, CHAR
+            ],
+            (ci1, ci3): [
+                DISC, DISC, CHAR, CHAR
+            ],
+            (ci2, ci3): [
+                DISC, CHAR, DISC, CHAR
+            ]
+        }
+        fpd = FakePhiDelta()
+        fpd.add_phi_delta_mapping(phi_delta_map)
+        pdt = PairwiseDiscriminantTerms(phi_delta=fpd).evaluate(CategoryLayer.build_singleton_layer([ci1, ci2, ci3]))
+        numpy.testing.assert_array_equal([1, 1, 0, 0], pdt[ci1])
+        numpy.testing.assert_array_equal([1, 0, 1, 0], pdt[ci2])
+        numpy.testing.assert_array_equal([1, 0, 0, 0], pdt[ci3])
 
     def test_look_ahead(self):
         ci1 = FakeCategoryInfo("A", 4)
@@ -159,28 +199,6 @@ class TestMetrics(unittest.TestCase):
         self.assertEqual(3, lh)
         lh = LookAhead(phi_delta=fpd).evaluate(CategoryLayer([g12]).build_parent())
         self.assertEqual(0, lh)
-
-    def test_pairwise_discriminant_terms(self):
-        ci1 = FakeCategoryInfo("A", 4)
-        ci2 = FakeCategoryInfo("B", 4)
-        ci3 = FakeCategoryInfo("C", 4)
-        phi_delta_map = {
-            (ci1, ci2): [
-                DISC, DISC, DISC, CHAR
-            ],
-            (ci1, ci3): [
-                DISC, DISC, CHAR, CHAR
-            ],
-            (ci2, ci3): [
-                DISC, CHAR, DISC, CHAR
-            ]
-        }
-        fpd = FakePhiDelta()
-        fpd.add_phi_delta_mapping(phi_delta_map)
-        pdt = PairwiseDiscriminantTerms(phi_delta=fpd).evaluate(CategoryLayer.build_singleton_layer([ci1, ci2, ci3]))
-        numpy.testing.assert_array_equal([1, 1, 0, 0], pdt[ci1])
-        numpy.testing.assert_array_equal([1, 0, 1, 0], pdt[ci2])
-        numpy.testing.assert_array_equal([1, 0, 0, 0], pdt[ci3])
 
 
 class FakeCategoryInfo(CategoryInfo):

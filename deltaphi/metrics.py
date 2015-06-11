@@ -122,8 +122,20 @@ class CharacteristicTerms(GroupMetric):
         for ci1, ci2 in group.one_vs_siblings():
             insiders += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
         # Majority vote
-        # noinspection PyTypeChecker
         return numpy.asarray(insiders > (len(group) / 2), dtype=int)
+
+
+class PairwiseCharacteristicTerms(GroupMetric):
+
+    def __init__(self, characteristic_area=Cohesion.DEFAULT_AREA, phi_delta=PhiDelta()):
+        self.phi_delta = phi_delta
+        self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & characteristic_area
+
+    def evaluate(self, group):
+        count = numpy.zeros(len(group.terms))
+        for ci1, ci2 in itertools.combinations(group, 2):
+            count += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
+        return numpy.asarray(count > (len(group) / 2), dtype=int)
 
 
 class LayerMetric(object):
