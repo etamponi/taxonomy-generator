@@ -75,7 +75,7 @@ class IntegralMetric(GroupMetric):
 class Separability(IntegralMetric):
 
     DEFAULT_AREA = (
-        shapes.PSphere(numpy.asarray([0.0, 1.0]), 0.7, 2) | shapes.PSphere(numpy.asarray([0.0, -1.0]), 0.7, 2)
+        shapes.PSphere(numpy.asarray([0.0, 1.0]), 1, 1) | shapes.PSphere(numpy.asarray([0.0, -1.0]), 1, 1)
     )
 
     def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
@@ -88,7 +88,7 @@ class Separability(IntegralMetric):
 
 class Cohesion(IntegralMetric):
 
-    DEFAULT_AREA = shapes.PSphere(numpy.asarray([1.0, 0.0]), 0.7, 2)
+    DEFAULT_AREA = shapes.PSphere(numpy.asarray([1.0, 0.0]), 1, 1)
 
     def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
         super(Cohesion, self).__init__(area, phi_delta)

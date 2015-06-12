@@ -1,11 +1,13 @@
 import unittest
 
+from nltk.corpus import stopwords
+
 from deltaphi import test_file_path
 from deltaphi.category_info import CategoryLayer
 from deltaphi.raw_filter import RawFilter
 from deltaphi.sources import CSVRawSource, CategoryInfoSource
-from deltaphi.metrics import LookAhead, PairwiseDiscriminantTerms, PairwiseCharacteristicTerms
-from deltaphi.parent_layer_search import LayerGreedyMergeSearch
+from deltaphi.metrics import GeometricMeanScore
+from deltaphi.parent_layer_search import GreedyMergeSearch
 
 __author__ = 'Emanuele Tamponi'
 
@@ -14,12 +16,12 @@ class TestParentLayerSearch(unittest.TestCase):
 
     def setUp(self):
         self.search_impls = [
-            #GreedyMergeSearch(GeometricMeanScore()),
-            LayerGreedyMergeSearch(LookAhead(PairwiseCharacteristicTerms(), PairwiseDiscriminantTerms()))
+            GreedyMergeSearch(GeometricMeanScore()),
+            #LayerGreedyMergeSearch(LookAhead(PairwiseCharacteristicTerms(), PairwiseDiscriminantTerms()))
         ]
         source = CategoryInfoSource(
-            CSVRawSource(test_file_path("dmoz_arts_15.csv")),
-            RawFilter(min_length=3)
+            CSVRawSource(test_file_path("dmoz_arts_full.csv")),
+            RawFilter(min_length=1, stopwords=stopwords.words("english"))
         )
         source.open()
         self.base_layer = CategoryLayer.build_singleton_layer(source.iterate())
