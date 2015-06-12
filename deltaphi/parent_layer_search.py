@@ -36,6 +36,7 @@ class LayerGreedyMergeSearch(ParentLayerSearch):
         self.layer_score = layer_score
 
     def perform(self, layer):
+        print "Evaluating:", layer
         if all(len(group) > 1 for group in layer.groups):
             return [layer.build_parent()]
         best_score = 0

@@ -34,9 +34,12 @@ class PhiDelta(PairwiseMetric):
         self._computed = {}
 
     def pairwise_evaluate(self, ci1, ci2):
-        phis = self.characteristic.pairwise_evaluate(ci1, ci2)
-        deltas = self.discriminant.pairwise_evaluate(ci1, ci2)
-        return numpy.vstack((phis, deltas)).transpose()
+        if (ci1, ci2) not in self._computed:
+            phis = self.characteristic.pairwise_evaluate(ci1, ci2)
+            deltas = self.discriminant.pairwise_evaluate(ci1, ci2)
+            self._computed[(ci1, ci2)] = numpy.vstack((phis, deltas)).transpose()
+            self._computed[(ci2, ci1)] = numpy.vstack((phis, -deltas)).transpose()
+        return self._computed[(ci1, ci2)]
 
 
 class GroupMetric(object):
@@ -52,7 +55,7 @@ class IntegralMetric(GroupMetric):
         :type area: shapes.Shape
         """
         self.phi_delta = phi_delta
-        self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & area
+        self.area = area
 
     def pairwise_evaluate(self, ci1, ci2):
         points = self.phi_delta.pairwise_evaluate(ci1, ci2)
@@ -111,11 +114,9 @@ class GeometricMeanScore(GroupMetric):
 
 class CharacteristicTerms(GroupMetric):
 
-    def __init__(self,
-                 characteristic_area=Cohesion.DEFAULT_AREA,
-                 phi_delta=PhiDelta()):
+    def __init__(self, characteristic_area=Cohesion.DEFAULT_AREA, phi_delta=PhiDelta()):
         self.phi_delta = phi_delta
-        self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & characteristic_area
+        self.area = characteristic_area
 
     def evaluate(self, group):
         insiders = numpy.zeros(len(group.terms))
@@ -129,13 +130,13 @@ class PairwiseCharacteristicTerms(GroupMetric):
 
     def __init__(self, characteristic_area=Cohesion.DEFAULT_AREA, phi_delta=PhiDelta()):
         self.phi_delta = phi_delta
-        self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & characteristic_area
+        self.area = characteristic_area
 
     def evaluate(self, group):
         count = numpy.zeros(len(group.terms))
         for ci1, ci2 in itertools.combinations(group, 2):
             count += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
-        return numpy.asarray(count > (len(group) / 2), dtype=int)
+        return numpy.asarray(count > (len(group) / 3), dtype=int)
 
 
 class LayerMetric(object):
@@ -146,8 +147,8 @@ class LayerMetric(object):
 
 class DiscriminantTerms(LayerMetric):
 
-    def __init__(self, area=Separability.DEFAULT_AREA, phi_delta=PhiDelta()):
-        self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & area
+    def __init__(self, discriminant_area=Separability.DEFAULT_AREA, phi_delta=PhiDelta()):
+        self.area = discriminant_area
         self.phi_delta = phi_delta
 
     def evaluate(self, layer):
@@ -165,8 +166,8 @@ class DiscriminantTerms(LayerMetric):
 
 class PairwiseDiscriminantTerms(LayerMetric):
 
-    def __init__(self, area=Separability.DEFAULT_AREA, phi_delta=PhiDelta()):
-        self.area = shapes.PSphere(numpy.asarray([0.0, 0.0]), 1, 1) & area
+    def __init__(self, discriminant_area=Separability.DEFAULT_AREA, phi_delta=PhiDelta()):
+        self.area = discriminant_area
         self.phi_delta = phi_delta
 
     def evaluate(self, layer):
@@ -182,20 +183,21 @@ class PairwiseDiscriminantTerms(LayerMetric):
                 if ci1 == ci2:
                     continue
                 count += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
-            ret[ci1] = numpy.asarray(count > (len(layer.groups)-1) / 2, dtype=int)
+            ret[ci1] = numpy.asarray(count > ((len(layer.groups)-1) / 3), dtype=int)
         return ret
 
 
 class LookAhead(LayerMetric):
 
-    def __init__(self, phi_delta=PhiDelta()):
-        self.phi_delta = phi_delta
-        self.characteristic_terms = CharacteristicTerms(phi_delta=phi_delta)
-        self.discriminant_terms = DiscriminantTerms(phi_delta=phi_delta)
+    def __init__(self, characteristic_terms=CharacteristicTerms(), discriminant_terms=DiscriminantTerms()):
+        self.characteristic_terms = characteristic_terms
+        self.discriminant_terms = discriminant_terms
 
     def evaluate(self, layer):
         ret = 0
         for ci, dt in self.discriminant_terms.evaluate(layer).iteritems():
-            ct = self.characteristic_terms.evaluate(ci.child_group) if ci.child_group is not None else 0
+            if ci.child_group is None:
+                continue
+            ct = self.characteristic_terms.evaluate(ci.child_group)
             ret += numpy.sum(dt & ct)
         return ret

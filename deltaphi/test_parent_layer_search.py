@@ -4,8 +4,8 @@ from deltaphi import test_file_path
 from deltaphi.category_info import CategoryLayer
 from deltaphi.raw_filter import RawFilter
 from deltaphi.sources import CSVRawSource, CategoryInfoSource
-from deltaphi.metrics import LookAhead, GeometricMeanScore
-from deltaphi.parent_layer_search import LayerGreedyMergeSearch, GreedyMergeSearch
+from deltaphi.metrics import LookAhead, PairwiseDiscriminantTerms, PairwiseCharacteristicTerms
+from deltaphi.parent_layer_search import LayerGreedyMergeSearch
 
 __author__ = 'Emanuele Tamponi'
 
@@ -14,11 +14,11 @@ class TestParentLayerSearch(unittest.TestCase):
 
     def setUp(self):
         self.search_impls = [
-            GreedyMergeSearch(GeometricMeanScore()),
-            LayerGreedyMergeSearch(LookAhead())
+            #GreedyMergeSearch(GeometricMeanScore()),
+            LayerGreedyMergeSearch(LookAhead(PairwiseCharacteristicTerms(), PairwiseDiscriminantTerms()))
         ]
         source = CategoryInfoSource(
-            CSVRawSource(test_file_path("dmoz_arts_7.csv")),
+            CSVRawSource(test_file_path("dmoz_arts_15.csv")),
             RawFilter(min_length=3)
         )
         source.open()
