@@ -27,7 +27,6 @@ class GreedyMergeSearch(ParentLayerSearch):
         if best_pair is None:
             return [layer.build_parent()]
         else:
-            print "Merged", best_pair
             return self.perform(layer.merge_groups(best_pair[0], best_pair[1]))
 
 

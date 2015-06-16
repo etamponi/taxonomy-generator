@@ -123,6 +123,7 @@ class CharacteristicTerms(GroupMetric):
         for ci1, ci2 in group.one_vs_siblings():
             insiders += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
         # Majority vote
+        # noinspection PyTypeChecker
         return numpy.asarray(insiders > (len(group) / 2), dtype=int)
 
 
@@ -136,7 +137,7 @@ class PairwiseCharacteristicTerms(GroupMetric):
         count = numpy.zeros(len(group.terms))
         for ci1, ci2 in itertools.combinations(group, 2):
             count += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
-        return numpy.asarray(count > (len(group) / 3), dtype=int)
+        return numpy.asarray(count > (len(group) / 2), dtype=int)
 
 
 class LayerMetric(object):
@@ -183,7 +184,7 @@ class PairwiseDiscriminantTerms(LayerMetric):
                 if ci1 == ci2:
                     continue
                 count += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
-            ret[ci1] = numpy.asarray(count > ((len(layer.groups)-1) / 3), dtype=int)
+            ret[ci1] = numpy.asarray(count > ((len(layer.groups)-1) / 2), dtype=int)
         return ret
 
 
