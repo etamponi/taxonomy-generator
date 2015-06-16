@@ -102,11 +102,10 @@ class Cohesion(IntegralMetric):
 class GeometricMeanScore(GroupMetric):
 
     def __init__(self,
-                 separability_area=Separability.DEFAULT_AREA,
-                 cohesion_area=Cohesion.DEFAULT_AREA,
-                 phi_delta=PhiDelta()):
-        self.separability = Separability(separability_area, phi_delta)
-        self.cohesion = Cohesion(cohesion_area, phi_delta)
+                 separability=Separability(),
+                 cohesion=Cohesion()):
+        self.separability = separability
+        self.cohesion = cohesion
 
     def evaluate(self, group):
         return self.separability.evaluate(group) * self.cohesion.evaluate(group)

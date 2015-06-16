@@ -1,6 +1,8 @@
 import numpy
 from scipy.spatial import distance
 
+from deltaphi.metrics import PhiDelta, IntegralMetric
+
 __author__ = 'Emanuele'
 
 
@@ -36,3 +38,15 @@ class Gaussian(SoftShape):
     def contains(self, points):
         distances = distance.cdist([self.center], points, metric="sqeuclidean")[0]
         return numpy.exp(-0.5 * self.precision * distances)
+
+
+class SoftIntegralMetric(IntegralMetric):
+
+    COHESION_AREA = Gaussian([1, 0], 1)
+    SEPARABILITY_AREA = Gaussian([0, 1], 1) | Gaussian([1, 0], 1)
+
+    def __init__(self, area, phi_delta=PhiDelta()):
+        super(SoftIntegralMetric, self).__init__(area, phi_delta)
+
+    def integrate(self, points, inside):
+        return numpy.mean(inside)
