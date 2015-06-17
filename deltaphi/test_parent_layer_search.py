@@ -1,7 +1,5 @@
 import unittest
 
-from nltk.corpus import stopwords
-
 from deltaphi import test_file_path
 from deltaphi.category_info import CategoryLayer
 from deltaphi.raw_filter import RawFilter
@@ -20,8 +18,7 @@ class TestParentLayerSearch(unittest.TestCase):
             LayerGreedyMergeSearch(LookAhead())
         ]
         source = CategoryInfoSource(
-            CSVRawSource(test_file_path("dmoz_arts_7.csv")),
-            RawFilter(stopwords=stopwords.words("english"))
+            CSVRawSource(test_file_path("dmoz_arts_7.csv")), RawFilter()
         )
         source.open()
         self.base_layer = CategoryLayer.build_singleton_layer(source.iterate())
