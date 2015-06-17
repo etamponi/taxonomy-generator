@@ -6,11 +6,8 @@ __author__ = 'Emanuele'
 
 class Shape(object):
 
-    def _contains_impl(self, points):
-        pass
-
     def contains(self, points):
-        return self._contains_impl(points).astype(int).reshape((len(points),))
+        pass
 
     def __or__(self, other):
         return ShapeUnion(self, other)
@@ -35,8 +32,8 @@ class ShapeUnion(ShapeGroup):
     def __init__(self, a, b):
         super(ShapeUnion, self).__init__(a, b)
 
-    def _contains_impl(self, points):
-        return numpy.any(numpy.asarray([shape.contains(points) for shape in self.shapes]), axis=0)
+    def contains(self, points):
+        return numpy.max([shape.contains(points) for shape in self.shapes], axis=0)
 
 
 class ShapeIntersection(ShapeGroup):
@@ -44,8 +41,8 @@ class ShapeIntersection(ShapeGroup):
     def __init__(self, a, b):
         super(ShapeIntersection, self).__init__(a, b)
 
-    def _contains_impl(self, points):
-        return numpy.all(numpy.asarray([shape.contains(points) for shape in self.shapes]), axis=0)
+    def contains(self, points):
+        return numpy.prod(numpy.asarray([shape.contains(points) for shape in self.shapes]), axis=0)
 
 
 class PSphere(Shape):
@@ -56,5 +53,7 @@ class PSphere(Shape):
         self.radius = radius
         self.p = p
 
-    def _contains_impl(self, points):
-        return distance.cdist(self.center, points, metric='minkowski', p=self.p) <= self.radius
+    def contains(self, points):
+        return numpy.asarray(
+            distance.cdist(self.center, points, metric='minkowski', p=self.p) <= self.radius, dtype=float
+        )[0]
