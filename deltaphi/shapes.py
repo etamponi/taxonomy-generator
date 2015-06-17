@@ -52,7 +52,7 @@ class PSphere(Shape):
 
     def __init__(self, center, radius, p):
         # Represent it as a single row matrix as it has to be used with cdist
-        self.center = center.reshape((1, 2))
+        self.center = numpy.asarray([center])
         self.radius = radius
         self.p = p
 

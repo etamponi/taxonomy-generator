@@ -75,7 +75,7 @@ class IntegralMetric(GroupMetric):
 class Separability(IntegralMetric):
 
     DEFAULT_AREA = (
-        shapes.PSphere(numpy.asarray([0.0, 1.0]), 1, 1) | shapes.PSphere(numpy.asarray([0.0, -1.0]), 1, 1)
+        shapes.PSphere([0, 1], 1, 1) | shapes.PSphere([0, -1], 1, 1)
     )
 
     def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
@@ -88,7 +88,7 @@ class Separability(IntegralMetric):
 
 class Cohesion(IntegralMetric):
 
-    DEFAULT_AREA = shapes.PSphere(numpy.asarray([1.0, 0.0]), 1, 1)
+    DEFAULT_AREA = shapes.PSphere([1.0, 0.0], 1, 1)
 
     def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
         super(Cohesion, self).__init__(area, phi_delta)
@@ -101,11 +101,9 @@ class Cohesion(IntegralMetric):
 
 class GeometricMeanScore(GroupMetric):
 
-    def __init__(self,
-                 separability=Separability(),
-                 cohesion=Cohesion()):
-        self.separability = separability
+    def __init__(self, cohesion=Cohesion(), separability=Separability()):
         self.cohesion = cohesion
+        self.separability = separability
 
     def evaluate(self, group):
         return self.separability.evaluate(group) * self.cohesion.evaluate(group)
@@ -199,5 +197,5 @@ class LookAhead(LayerMetric):
             if ci.child_group is None:
                 continue
             ct = self.characteristic_terms.evaluate(ci.child_group)
-            ret += numpy.sum(dt & ct)
+            ret += numpy.sum(dt * ct)
         return ret

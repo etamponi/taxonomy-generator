@@ -21,7 +21,7 @@ class TestParentLayerSearch(unittest.TestCase):
         ]
         source = CategoryInfoSource(
             CSVRawSource(test_file_path("dmoz_arts_7.csv")),
-            RawFilter(min_length=1, stopwords=stopwords.words("english"))
+            RawFilter(stopwords=stopwords.words("english"))
         )
         source.open()
         self.base_layer = CategoryLayer.build_singleton_layer(source.iterate())
@@ -30,6 +30,7 @@ class TestParentLayerSearch(unittest.TestCase):
         for search in self.search_impls:
             candidates = search.perform(self.base_layer)
             for candidate in candidates:
+                print candidate
                 self.assertTrue(candidate.is_singleton_layer())
                 # Verifies that we didn't forget any CategoryInfo
                 self.assertEqual(

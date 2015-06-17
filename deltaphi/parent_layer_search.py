@@ -21,12 +21,14 @@ class GreedyMergeSearch(ParentLayerSearch):
         best_pair = None
         for a, b in itertools.combinations(layer.groups, 2):
             score = self.group_score.evaluate(a + b)
+            print (a, b), score
             if score > best_score:
                 best_score = score
                 best_pair = (a, b)
         if best_pair is None:
             return [layer.build_parent()]
         else:
+            print "Merged", best_pair
             return self.perform(layer.merge_groups(best_pair[0], best_pair[1]))
 
 
