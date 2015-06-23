@@ -54,6 +54,7 @@ class PSphere(Shape):
         self.p = p
 
     def contains(self, points):
+        # noinspection PyTypeChecker
         return numpy.asarray(
             distance.cdist(self.center, points, metric='minkowski', p=self.p) <= self.radius, dtype=float
         )[0]

@@ -34,12 +34,9 @@ class PhiDelta(PairwiseMetric):
         self._computed = {}
 
     def pairwise_evaluate(self, ci1, ci2):
-        if (ci1, ci2) not in self._computed:
-            phis = self.characteristic.pairwise_evaluate(ci1, ci2)
-            deltas = self.discriminant.pairwise_evaluate(ci1, ci2)
-            self._computed[(ci1, ci2)] = numpy.vstack((phis, deltas)).transpose()
-            self._computed[(ci2, ci1)] = numpy.vstack((phis, -deltas)).transpose()
-        return self._computed[(ci1, ci2)]
+        phis = self.characteristic.pairwise_evaluate(ci1, ci2)
+        deltas = self.discriminant.pairwise_evaluate(ci1, ci2)
+        return numpy.vstack((phis, deltas)).transpose()
 
 
 class GroupMetric(object):
@@ -75,7 +72,7 @@ class IntegralMetric(GroupMetric):
 class Separability(IntegralMetric):
 
     DEFAULT_AREA = (
-        shapes.PSphere([0, 1], 1, 1) | shapes.PSphere([0, -1], 1, 1)
+        shapes.PSphere([0, 1], 0.7, 2) | shapes.PSphere([0, -1], 0.9, 1)
     )
 
     def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
@@ -88,7 +85,7 @@ class Separability(IntegralMetric):
 
 class Cohesion(IntegralMetric):
 
-    DEFAULT_AREA = shapes.PSphere([1.0, 0.0], 1, 1)
+    DEFAULT_AREA = shapes.PSphere([1.0, 0.0], 0.9, 1)
 
     def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
         super(Cohesion, self).__init__(area, phi_delta)
