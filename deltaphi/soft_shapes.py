@@ -6,13 +6,7 @@ from deltaphi.shapes import Shape
 __author__ = 'Emanuele'
 
 
-class SoftShape(Shape):
-
-    def contains(self, points):
-        pass
-
-
-class Gaussian(SoftShape):
+class Gaussian(Shape):
 
     def __init__(self, center, precision):
         self.center = numpy.asarray(center)

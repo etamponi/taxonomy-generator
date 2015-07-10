@@ -72,7 +72,7 @@ class IntegralMetric(GroupMetric):
 class Separability(IntegralMetric):
 
     DEFAULT_AREA = (
-        shapes.PSphere([0, 1], 0.7, 2) | shapes.PSphere([0, -1], 0.9, 1)
+        shapes.PSphere([0, 1], 0.7, 2) | shapes.PSphere([0, -1], 0.7, 2)
     )
 
     def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
@@ -85,7 +85,7 @@ class Separability(IntegralMetric):
 
 class Cohesion(IntegralMetric):
 
-    DEFAULT_AREA = shapes.PSphere([1.0, 0.0], 0.9, 1)
+    DEFAULT_AREA = shapes.PSphere([1, 0], 0.7, 2)
 
     def __init__(self, area=DEFAULT_AREA, phi_delta=PhiDelta()):
         super(Cohesion, self).__init__(area, phi_delta)
@@ -116,9 +116,7 @@ class CharacteristicTerms(GroupMetric):
         insiders = numpy.zeros(len(group.terms))
         for ci1, ci2 in group.one_vs_siblings():
             insiders += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
-        # Majority vote
-        # noinspection PyTypeChecker
-        return numpy.asarray(insiders > (len(group) / 2), dtype=int)
+        return numpy.asarray(insiders > len(group) / 2, dtype=int)
 
 
 class PairwiseCharacteristicTerms(GroupMetric):
@@ -178,7 +176,7 @@ class PairwiseDiscriminantTerms(LayerMetric):
                 if ci1 == ci2:
                     continue
                 count += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
-            ret[ci1] = numpy.asarray(count > ((len(layer.groups)-1) / 2), dtype=int)
+            ret[ci1] = numpy.asarray(count > (len(layer.groups)-1) / 2, dtype=int)
         return ret
 
 
@@ -191,8 +189,9 @@ class LookAhead(LayerMetric):
     def evaluate(self, layer):
         ret = 0
         for ci, dt in self.discriminant_terms.evaluate(layer).iteritems():
-            if ci.child_group is None:
+            if len(ci.child_group) == 1:
                 continue
             ct = self.characteristic_terms.evaluate(ci.child_group)
+            print ci, dt.sum(), ct.sum(), (dt * ct).sum()
             ret += numpy.sum(dt * ct)
         return ret

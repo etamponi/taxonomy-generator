@@ -1,3 +1,4 @@
+import heapq
 import itertools
 
 __author__ = 'Emanuele Tamponi'
@@ -51,3 +52,30 @@ class LayerGreedyMergeSearch(ParentLayerSearch):
             return [layer.build_parent()]
         else:
             return self.perform(best_layer)
+
+
+class GreedyQueueMergeSearch(ParentLayerSearch):
+
+    def __init__(self, layer_score, size, iterations):
+        self.layer_score = layer_score
+        self.size = size
+        self.iterations = iterations
+
+    def perform(self, layer):
+        candidates = [(0, layer)]
+        for i in range(self.iterations):
+            print "Running iteration", i+1
+            heap = []
+            for score, layer in candidates:
+                for a, b in itertools.combinations(layer.groups, 2):
+                    if len(a) + len(b) > 2:
+                        continue
+                    new_layer = layer.merge_groups(a, b)
+                    new_score = self.layer_score.evaluate(new_layer.build_parent())
+                    if (new_score, new_layer) not in heap:
+                        heapq.heappush(heap, (new_score, new_layer))
+            candidates += heap
+            candidates = sorted(candidates)[-self.size:]
+        for score, layer in candidates:
+            print score, layer
+        return [layer.build_parent() for _, layer in candidates]

@@ -74,7 +74,7 @@ class CategoryGroup(object):
 
     def build_parent_info(self):
         if len(self.infos) == 1:
-            return self.infos[0]
+            return CategoryInfo(self[0].category, self[0].documents, self.terms, self[0].frequencies, self)
         merged_category = "(" + "+".join(ci.category for ci in self) + ")"
         merged_documents = sum(ci.documents for ci in self)
         merged_frequencies = sum(ci.frequencies for ci in self)
