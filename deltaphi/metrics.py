@@ -119,19 +119,6 @@ class CharacteristicTerms(GroupMetric):
         return numpy.asarray(insiders > len(group) / 2, dtype=int)
 
 
-class PairwiseCharacteristicTerms(GroupMetric):
-
-    def __init__(self, characteristic_area=Cohesion.DEFAULT_AREA, phi_delta=PhiDelta()):
-        self.phi_delta = phi_delta
-        self.area = characteristic_area
-
-    def evaluate(self, group):
-        count = numpy.zeros(len(group.terms))
-        for ci1, ci2 in itertools.combinations(group, 2):
-            count += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
-        return numpy.asarray(count > (len(group) / 2), dtype=int)
-
-
 class LayerMetric(object):
 
     def evaluate(self, layer):
@@ -155,29 +142,6 @@ class DiscriminantTerms(LayerMetric):
         for ci1, ci2 in group_all.one_vs_siblings():
             metric_map[ci1] = self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
         return metric_map
-
-
-class PairwiseDiscriminantTerms(LayerMetric):
-
-    def __init__(self, discriminant_area=Separability.DEFAULT_AREA, phi_delta=PhiDelta()):
-        self.area = discriminant_area
-        self.phi_delta = phi_delta
-
-    def evaluate(self, layer):
-        """
-        :type layer: category_info.CategoryLayer
-        """
-        if not layer.is_singleton_layer():
-            raise Exception("PairwiseDiscriminantTerms can only be evaluated for singleton layers")
-        ret = {}
-        for ci1 in map(lambda g: g[0], layer.groups):
-            count = numpy.zeros(len(ci1.terms))
-            for ci2 in map(lambda g: g[0], layer.groups):
-                if ci1 == ci2:
-                    continue
-                count += self.area.contains(self.phi_delta.pairwise_evaluate(ci1, ci2))
-            ret[ci1] = numpy.asarray(count > (len(layer.groups)-1) / 2, dtype=int)
-        return ret
 
 
 class LookAhead(LayerMetric):
