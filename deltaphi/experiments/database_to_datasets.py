@@ -20,6 +20,7 @@ def transform(csv_name, parents):
                     .format(parent)
                 )
                 categories = [row[0][len("Root/"):-1] for row in curs.fetchall()]
+                assert len(categories) > 0
                 for category in categories:
                     curs.execute("""SELECT "count", "term" FROM "Root/{}/" """.format(category))
                     terms, frequencies = [], []

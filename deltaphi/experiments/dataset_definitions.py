@@ -2,6 +2,7 @@ __author__ = 'Emanuele Tamponi'
 
 
 definitions = [
+    # EASY DATASETS
     (
         "easy1",
         [
@@ -13,7 +14,7 @@ definitions = [
         "easy2",
         [
             "Arts/Literature",
-            "Computers/Programming"
+            "Computers/Security"
         ]
     ),
     (
@@ -27,6 +28,128 @@ definitions = [
         "easy4",
         [
             "Recreation/Collecting",
+            "Science/Environment"
+        ]
+    ),
+    # EASY-MEDIUM DATASETS
+    (
+        "easy-medium1",
+        [
+            "Arts/Crafts",
+            "Business/Textiles_and_Nonwovens",
+            "Computers/Computer_Science"
+        ]
+    ),
+    (
+        "easy-medium2",
+        [
+            "Business/Industrial_Goods_and_Services",
+            "Computers/Hardware",
+            "Recreation/Aviation"
+        ]
+    ),
+    (
+        "easy-medium3",
+        [
+            "Computers/Internet",
+            "Recreation/Collecting",
+            "Science/Earth_Sciences"
+        ]
+    ),
+    # MEDIUM DATASETS
+    (
+        "medium1",
+        [
+            "Arts/Crafts",
+            "Arts/Literature"
+        ]
+    ),
+    (
+        "medium2",
+        [
+            "Business/Industrial_Goods_and_Services",
+            "Business/Textiles_and_Nonwovens"
+        ]
+    ),
+    (
+        "medium3",
+        [
+            "Computers/Computer_Science",
+            "Computers/Hardware"
+        ]
+    ),
+    (
+        "medium4",
+        [
+            "Recreation/Aviation",
+            "Recreation/Collecting"
+        ]
+    ),
+    (
+        "medium5",
+        [
+            "Science/Math",
+            "Science/Earth_Sciences"
+        ]
+    ),
+    # MEDIUM-HARD DATASETS
+    (
+        "medium-hard1",
+        [
+            "Arts/Crafts",
+            "Arts/Literature",
+            "Computers/Computer_Science",
+            "Computers/Hardware"
+        ]
+    ),
+    (
+        "medium-hard2",
+        [
+            "Computers/Internet",
+            "Computers/Security",
+            "Recreation/Aviation",
+            "Recreation/Collecting"
+        ]
+    ),
+    (
+        "medium-hard3",
+        [
+            "Recreation/Outdoors",
+            "Recreation/Pets",
+            "Science/Math",
+            "Science/Earth_Sciences"
+        ]
+    ),
+    # HARD DATASETS
+    (
+        "hard1",
+        [
+            "Arts/Crafts",
+            "Arts/Literature",
+            "Arts/Movies"
+        ]
+    ),
+    (
+        "hard2",
+        [
+            "Computers/Computer_Science",
+            "Computers/Hardware",
+            "Computers/Internet"
+        ]
+    ),
+    (
+        "hard3",
+        [
+            "Recreation/Aviation",
+            "Recreation/Collecting",
+            "Recreation/Outdoors"
+        ]
+    ),
+    (
+        "hard4",
+        [
+            "Science/Math",
+            "Science/Earth_Sciences",
             "Science/Environment"
         ]
     )

@@ -1,4 +1,6 @@
 import unittest
+import csv
+import sys
 
 from deltaphi import test_file_path
 from deltaphi.category_info import CategoryLayer
@@ -13,12 +15,18 @@ __author__ = 'Emanuele Tamponi'
 class TestParentLayerSearch(unittest.TestCase):
 
     def setUp(self):
+        csv.field_size_limit(sys.maxint)
         self.search_impls = [
             GreedyMergeSearch(GeometricMeanScore()),
             LayerGreedyMergeSearch(LookAhead())
         ]
         source = CategoryInfoSource(
-            CSVRawSource(test_file_path("dmoz_arts_7.csv")), RawFilter()
+            CSVRawSource(
+                test_file_path("dmoz_arts_7.csv")
+            ),
+            RawFilter(
+                min_length=3
+            )
         )
         source.open()
         self.base_layer = CategoryLayer.build_singleton_layer(source.iterate())
