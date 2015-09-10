@@ -70,7 +70,8 @@ class TestCategoryGroup(unittest.TestCase):
         self.assertEqual(expected_leafs, g12.leafs())
         expected_leafs = [ci3, ci4]
         self.assertEqual(expected_leafs, g34.leafs())
-        ci1234 = CategoryGroup([ci12, ci34]).build_parent_info()
-        g1234 = CategoryGroup([ci1234])
+        g1234 = CategoryGroup([ci12, ci34])
         expected_leafs = [ci1, ci2, ci3, ci4]
+        self.assertEqual(expected_leafs, g1234.leafs())
+        g1234 = CategoryGroup([g1234.build_parent_info()])
         self.assertEqual(expected_leafs, g1234.leafs())

@@ -129,9 +129,16 @@ class CategoryLayer(object):
         """
         return all(len(group) == 1 for group in self.groups)
 
-    @classmethod
-    def build_closed_layer(cls, info_iterable):
-        return CategoryLayer([CategoryGroup([info]) for info in info_iterable])
+    def groups_of(self, category):
+        ret = []
+        for group in self.groups:
+            if category in group:
+                ret.append(group)
+        return ret
 
     def __repr__(self):
         return "Layer: {}".format(list(self.groups))
+
+    @classmethod
+    def build_closed_layer(cls, info_iterable):
+        return CategoryLayer([CategoryGroup([info]) for info in info_iterable])
