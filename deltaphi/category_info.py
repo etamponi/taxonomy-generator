@@ -88,6 +88,18 @@ class CategoryGroup(object):
             other.infos.remove(info)
             yield info, other.build_parent_info()
 
+    def leafs(self):
+        bag = []
+        self._search_leafs(self, bag)
+        return bag
+
+    def _search_leafs(self, current_group, bag):
+        for info in current_group.infos:
+            if info.child_group is None:
+                bag.append(info)
+            else:
+                self._search_leafs(info.child_group, bag)
+
     def __repr__(self):
         return repr(list(self.infos))
 
@@ -108,13 +120,17 @@ class CategoryLayer(object):
         return cmp(self.groups, other.groups)
 
     def build_parent(self):
-        return CategoryLayer.build_singleton_layer(group.build_parent_info() for group in self.groups)
+        return CategoryLayer.build_closed_layer(group.build_parent_info() for group in self.groups)
 
-    def is_singleton_layer(self):
+    def is_closed(self):
+        """
+        A closed layer is a layer in which each group as only one category. It means that each group was "closed" by
+        calling build_parent_info on it.
+        """
         return all(len(group) == 1 for group in self.groups)
 
     @classmethod
-    def build_singleton_layer(cls, info_iterable):
+    def build_closed_layer(cls, info_iterable):
         return CategoryLayer([CategoryGroup([info]) for info in info_iterable])
 
     def __repr__(self):

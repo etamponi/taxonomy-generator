@@ -16,7 +16,7 @@ class TestCategoryLayer(unittest.TestCase):
         self.source.open()
 
     def test_pairwise_merge(self):
-        layer = CategoryLayer.build_singleton_layer(self.source.iterate())
+        layer = CategoryLayer.build_closed_layer(self.source.iterate())
         expected_layer = CategoryLayer([
             layer.groups[0],
             layer.groups[1] + layer.groups[2]
@@ -24,7 +24,7 @@ class TestCategoryLayer(unittest.TestCase):
         self.assertEqual(expected_layer, layer.merge_groups(layer.groups[1], layer.groups[2]))
 
     def test_build_parent_layer(self):
-        layer = CategoryLayer.build_singleton_layer(self.source.iterate())
+        layer = CategoryLayer.build_closed_layer(self.source.iterate())
         merged = layer.merge_groups(layer.groups[0], layer.groups[1])
         expected_parent = CategoryLayer([
             layer.groups[2],

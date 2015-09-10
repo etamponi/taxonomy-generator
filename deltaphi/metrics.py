@@ -135,7 +135,7 @@ class DiscriminantTerms(LayerMetric):
         """
         :type layer: category_info.CategoryLayer
         """
-        assert layer.is_singleton_layer()
+        assert layer.is_closed()
         group_all = category_info.CategoryGroup([group[0] for group in layer.groups])
         metric_map = {}
         for ci1, ci2 in group_all.one_vs_siblings():

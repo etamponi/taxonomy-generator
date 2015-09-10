@@ -1,11 +1,11 @@
 import unittest
 
-from blist import sortedlist
 import numpy
 
-from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion, PairwiseMetric, CharacteristicTerms, \
+from deltaphi.fake_entities import FakePhiDelta, FakeCategoryInfo
+from deltaphi.metrics import Discriminant, Characteristic, Separability, Cohesion, CharacteristicTerms, \
     DiscriminantTerms, LookAhead
-from deltaphi.category_info import CategoryInfoFactory, CategoryGroup, RawCategoryInfo, CategoryInfo, CategoryLayer
+from deltaphi.category_info import CategoryInfoFactory, CategoryGroup, RawCategoryInfo, CategoryLayer
 
 __author__ = 'Emanuele Tamponi'
 
@@ -126,7 +126,7 @@ class TestMetrics(unittest.TestCase):
         }
         fpd = FakePhiDelta()
         fpd.add_phi_delta_mapping(phi_delta_map)
-        dt = DiscriminantTerms(phi_delta=fpd).evaluate(CategoryLayer.build_singleton_layer([ci1, ci2, ci3]))
+        dt = DiscriminantTerms(phi_delta=fpd).evaluate(CategoryLayer.build_closed_layer([ci1, ci2, ci3]))
         numpy.testing.assert_array_equal(numpy.asarray([1, 1, 0, 0]), dt[ci1])
         numpy.testing.assert_array_equal(numpy.asarray([1, 0, 0, 1]), dt[ci2])
         numpy.testing.assert_array_equal(numpy.asarray([1, 0, 1, 0]), dt[ci3])
@@ -159,29 +159,3 @@ class TestMetrics(unittest.TestCase):
         self.assertEqual(3, lh)
         lh = LookAhead(ct, dt).evaluate(CategoryLayer([g12]).build_parent())
         self.assertEqual(0, lh)
-
-
-class FakeCategoryInfo(CategoryInfo):
-
-    def __init__(self, category, num_terms):
-        super(FakeCategoryInfo, self).__init__(
-            category, 100, sortedlist(range(num_terms)), numpy.zeros(num_terms), None
-        )
-
-
-class FakePhiDelta(PairwiseMetric):
-
-    def __init__(self):
-        self.phi_delta_mapping = {}
-
-    def add_phi_delta_mapping(self, mapping):
-        for (ci1, ci2), phi_delta in mapping.iteritems():
-            phi_delta = numpy.asarray(phi_delta)
-            self.phi_delta_mapping[(ci1, ci2)] = phi_delta
-            if (ci2, ci1) not in mapping:
-                self.phi_delta_mapping[(ci2, ci1)] = numpy.asarray([
-                    phi_delta[:, 0], -phi_delta[:, 1]
-                ]).transpose()
-
-    def pairwise_evaluate(self, ci1, ci2):
-        return self.phi_delta_mapping[(ci1, ci2)]

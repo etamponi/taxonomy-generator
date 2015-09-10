@@ -29,14 +29,14 @@ class TestParentLayerSearch(unittest.TestCase):
             )
         )
         source.open()
-        self.base_layer = CategoryLayer.build_singleton_layer(source.iterate())
+        self.base_layer = CategoryLayer.build_closed_layer(source.iterate())
 
     def test_implementations(self):
         for search in self.search_impls:
             candidates = search.perform(self.base_layer)
             for candidate in candidates:
                 print candidate
-                self.assertTrue(candidate.is_singleton_layer())
+                self.assertTrue(candidate.is_closed())
                 # Verifies that we didn't forget any CategoryInfo
                 self.assertEqual(
                     len(self.base_layer.groups),
