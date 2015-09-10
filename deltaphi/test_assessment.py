@@ -32,6 +32,27 @@ class TestTaxonomy(unittest.TestCase):
         taxonomy.add_layer(exploded_new_layer.build_parent())
         self.assertEqual(exploded_new_layer, taxonomy.layers[1])
 
+    def test_build_from_names(self):
+        c1 = FakeCategoryInfo("A/a/1", 4)
+        c2 = FakeCategoryInfo("A/a/2", 4)
+        c3 = FakeCategoryInfo("A/b/3", 4)
+        c4 = FakeCategoryInfo("B/c/4", 4)
+        c5 = FakeCategoryInfo("B/d/5", 4)
+        c6 = FakeCategoryInfo("B/d/6", 4)
+        taxonomy = Taxonomy.build_from_category_names([c1, c2, c3, c4, c5, c6])
+        first_layer = CategoryLayer([
+            CategoryGroup([c1, c2, c3]),
+            CategoryGroup([c4, c5, c6]),
+        ])
+        self.assertEqual(first_layer, taxonomy.layers[1])
+        second_layer = CategoryLayer([
+            CategoryGroup([c1, c2]),
+            CategoryGroup([c3]),
+            CategoryGroup([c4]),
+            CategoryGroup([c5, c6]),
+        ])
+        self.assertEqual(second_layer, taxonomy.layers[2])
+
 
 class TestTaxonomyScore(unittest.TestCase):
 

@@ -1,3 +1,4 @@
+from collections import defaultdict
 from itertools import combinations
 import math
 
@@ -27,6 +28,25 @@ class Taxonomy(object):
         new_leafs = set(sum((list(group.infos) for group in exploded_layer.groups), []))
         orig_leafs = set(group.infos[0] for group in self.layers[-1].groups)
         return new_leafs == orig_leafs
+
+    @classmethod
+    def build_from_category_names(cls, leafs):
+        tables = defaultdict(lambda: defaultdict(list))
+        depth = 0
+        for category in leafs:
+            full_name = category.category
+            tokens = full_name.split("/")
+            if len(tokens) > depth:
+                depth = len(tokens)
+            for i, token in enumerate(tokens[:-1]): # Skip last token because it is the leaf category
+                tables[i][token].append(category)
+        taxonomy = Taxonomy(CategoryLayer.build_closed_layer(leafs))
+        for i in range(0, depth - 1)[::-1]:
+            raw_groups = tables[i].values()
+            groups = map(CategoryGroup, raw_groups)
+            layer = CategoryLayer(groups)
+            taxonomy.add_layer(layer)
+        return taxonomy
 
 
 class TaxonomyScore(object):
