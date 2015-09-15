@@ -1,4 +1,5 @@
 from collections import defaultdict
+from copy import deepcopy
 from itertools import combinations
 import math
 
@@ -55,12 +56,14 @@ class TaxonomyScore(object):
         self.reference = reference
 
     def evaluate(self, taxonomy):
+        taxonomy = deepcopy(taxonomy)
         all_leafs = self.reference.leafs() | taxonomy.leafs()
         score = 0
         k = len(self.reference.layers) - 1
-        assert k == (len(taxonomy.layers) - 1)
         if k == 1:
             return 1
+        while len(taxonomy.layers) < len(self.reference.layers):
+            taxonomy.layers.append(taxonomy.layers[-1])
         for i, (reference_layer, taxonomy_layer) in enumerate(zip(self.reference.layers, taxonomy.layers)):
             if i == k:
                 break
@@ -82,3 +85,15 @@ class TaxonomyScore(object):
     @staticmethod
     def _same_group(layer, cat1, cat2):
         return any(cat2 in group for group in layer.groups_of(cat1))
+
+
+class TaxonomyBuilder(object):
+
+    def build_taxonomy(self, leaf_layer):
+        pass
+
+
+class SearchTaxonomy(TaxonomyBuilder):
+
+    def build_taxonomy(self, leaf_layer):
+        pass

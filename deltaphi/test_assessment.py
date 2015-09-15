@@ -69,18 +69,20 @@ class TestTaxonomyScore(unittest.TestCase):
 
     def test_ontolearn_example(self):
         # Taken from OntoLearn Reloaded: A Graph-Based Algorithm for Taxonomy Induction pag. 693
-        reference = self._build_reference()
-        taxonomy = self._build_taxonomy()
-        all_leafs = reference.leafs() | taxonomy.leafs()
-        scorer = TaxonomyScore(reference)
-        self.assertAlmostEqual(0.67, scorer.layer_score(reference.layers[0], taxonomy.layers[0], all_leafs), 2)
-        self.assertAlmostEqual(0.95, scorer.layer_score(reference.layers[1], taxonomy.layers[1], all_leafs), 2)
-        self.assertAlmostEqual(0.00, scorer.layer_score(reference.layers[2], taxonomy.layers[2], all_leafs), 2)
-        self.assertAlmostEqual(0.00, scorer.layer_score(reference.layers[3], taxonomy.layers[3], all_leafs), 2)
+        taxonomy1 = self._build_taxonomy1()
+        taxonomy2 = self._build_taxonomy2()
+        all_leafs = taxonomy1.leafs() | taxonomy2.leafs()
+        scorer = TaxonomyScore(reference=taxonomy1)
+        self.assertAlmostEqual(0.67, scorer.layer_score(taxonomy1.layers[0], taxonomy2.layers[0], all_leafs), 2)
+        self.assertAlmostEqual(0.95, scorer.layer_score(taxonomy1.layers[1], taxonomy2.layers[1], all_leafs), 2)
+        self.assertEqual(0.00, scorer.layer_score(taxonomy1.layers[2], taxonomy2.layers[2], all_leafs), 2)
+        self.assertEqual(0.00, scorer.layer_score(taxonomy1.layers[3], taxonomy2.layers[2], all_leafs), 2)
 
-        self.assertAlmostEqual(0.43, scorer.evaluate(taxonomy), 2)
+        self.assertAlmostEqual(0.43, scorer.evaluate(taxonomy2), 2)
+        # Swapping taxonomies improves the score!
+        self.assertAlmostEqual(0.86, TaxonomyScore(reference=taxonomy2).evaluate(taxonomy1), 2)
 
-    def _build_reference(self):
+    def _build_taxonomy1(self):
         leafs = [
             FakeCategoryInfo("A", 4),
             FakeCategoryInfo("B", 4),
@@ -110,7 +112,7 @@ class TestTaxonomyScore(unittest.TestCase):
         )
         return taxonomy
 
-    def _build_taxonomy(self):
+    def _build_taxonomy2(self):
         leafs = [
             FakeCategoryInfo("A", 4),
             FakeCategoryInfo("B", 4),
@@ -120,8 +122,6 @@ class TestTaxonomyScore(unittest.TestCase):
             FakeCategoryInfo("G", 4)
         ]
         taxonomy = Taxonomy(CategoryLayer.build_closed_layer(leafs))
-        # Same layer
-        taxonomy.add_layer(CategoryLayer.build_closed_layer(leafs))
         taxonomy.add_layer(
             CategoryLayer(
                 [
@@ -132,3 +132,8 @@ class TestTaxonomyScore(unittest.TestCase):
             )
         )
         return taxonomy
+
+
+class TestSearchTaxonomy(unittest.TestCase):
+
+    pass
