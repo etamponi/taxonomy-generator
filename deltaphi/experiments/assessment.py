@@ -95,5 +95,20 @@ class TaxonomyBuilder(object):
 
 class SearchTaxonomy(TaxonomyBuilder):
 
+    def __init__(self, parent_layer_search):
+        self.parent_layer_search = parent_layer_search
+
     def build_taxonomy(self, leaf_layer):
-        pass
+        taxonomy = Taxonomy(leaf_layer)
+        current_layer = leaf_layer
+        while True:
+            if len(current_layer.groups) == 2:
+                return taxonomy
+            candidates = self.parent_layer_search.perform(current_layer)
+            best_parent = candidates[0]
+            if best_parent == current_layer:
+                return taxonomy
+            if len(best_parent.groups) == 1:
+                return taxonomy
+            taxonomy.add_layer(best_parent)
+            current_layer = best_parent

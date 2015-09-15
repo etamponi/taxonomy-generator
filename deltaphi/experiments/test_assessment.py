@@ -1,8 +1,16 @@
+import csv
 import unittest
+import sys
 
-from deltaphi.experiments.assessment import Taxonomy, TaxonomyScore
+from deltaphi import test_file_path
+
+from deltaphi.experiments.assessment import Taxonomy, TaxonomyScore, SearchTaxonomy
 from deltaphi.category_info import CategoryLayer, CategoryGroup
 from deltaphi.fake_entities import FakeCategoryInfo
+from deltaphi.metrics import LookAhead
+from deltaphi.parent_layer_search import LayerGreedyMergeSearch
+from deltaphi.raw_filter import RawFilter
+from deltaphi.sources import CategoryInfoSource, CSVRawSource
 
 __author__ = 'Emanuele Tamponi'
 
@@ -136,4 +144,20 @@ class TestTaxonomyScore(unittest.TestCase):
 
 class TestSearchTaxonomy(unittest.TestCase):
 
-    pass
+    def setUp(self):
+        csv.field_size_limit(sys.maxint)
+        source = CategoryInfoSource(
+            CSVRawSource(
+                test_file_path("dmoz_arts_7.csv")
+            ),
+            RawFilter(
+                min_length=3
+            )
+        )
+        source.open()
+        self.base_layer = CategoryLayer.build_closed_layer(source.iterate())
+
+    def test_it_runs(self):
+        search = SearchTaxonomy(LayerGreedyMergeSearch(LookAhead()))
+        taxonomy = search.build_taxonomy(self.base_layer)
+        self.assertGreaterEqual(3, len(taxonomy.layers))
