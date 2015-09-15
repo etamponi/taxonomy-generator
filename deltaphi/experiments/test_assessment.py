@@ -1,6 +1,6 @@
 import unittest
 
-from deltaphi.assessment import Taxonomy, TaxonomyScore
+from deltaphi.experiments.assessment import Taxonomy, TaxonomyScore
 from deltaphi.category_info import CategoryLayer, CategoryGroup
 from deltaphi.fake_entities import FakeCategoryInfo
 
