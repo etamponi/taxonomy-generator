@@ -40,14 +40,14 @@ class LayerGreedyMergeSearch(ParentLayerSearch):
         if all(len(group) > 1 for group in layer.groups):
             return [layer.build_parent()]
         best_score = 0
-        best_layer = None
+        next_layer = None
         for a, b in itertools.combinations(layer.groups, 2):
             new_layer = layer.merge_groups(a, b)
             score = self.layer_score.evaluate(new_layer.build_parent())
             if score > best_score:
                 best_score = score
-                best_layer = new_layer
-        if best_layer is None:
+                next_layer = new_layer
+        if next_layer is None:
             return [layer.build_parent()]
         else:
-            return self.perform(best_layer)
+            return self.perform(next_layer)

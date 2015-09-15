@@ -3,7 +3,6 @@ import unittest
 import sys
 
 from deltaphi import test_file_path
-
 from deltaphi.experiments.assessment import Taxonomy, TaxonomyScore, SearchTaxonomy
 from deltaphi.category_info import CategoryLayer, CategoryGroup
 from deltaphi.fake_entities import FakeCategoryInfo
@@ -160,4 +159,7 @@ class TestSearchTaxonomy(unittest.TestCase):
     def test_it_runs(self):
         search = SearchTaxonomy(LayerGreedyMergeSearch(LookAhead()))
         taxonomy = search.build_taxonomy(self.base_layer)
+        for i, layer in enumerate(taxonomy.layers):
+            print i, "=", layer
+        print "Score:", TaxonomyScore(reference=Taxonomy.build_from_category_names(taxonomy.leafs())).evaluate(taxonomy)
         self.assertGreaterEqual(3, len(taxonomy.layers))

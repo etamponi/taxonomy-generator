@@ -155,6 +155,5 @@ class LookAhead(LayerMetric):
             if len(ci.child_group) == 1:
                 continue
             ct = self.characteristic_terms.evaluate(ci.child_group)
-            print ci, dt.sum(), ct.sum(), (dt * ct).sum()
             ret += numpy.sum(dt * ct)
         return ret
