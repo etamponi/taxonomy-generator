@@ -59,6 +59,7 @@ class TaxonomyScore(object):
         taxonomy = deepcopy(taxonomy)
         all_leafs = self.reference.leafs() | taxonomy.leafs()
         score = 0
+        layer_scores = []
         k = len(self.reference.layers) - 1
         if k == 1:
             return 1
@@ -69,8 +70,9 @@ class TaxonomyScore(object):
                 break
             layer_score = self.layer_score(reference_layer, taxonomy_layer, all_leafs)
             score += float(i + 1) / k * layer_score
+            layer_scores.append(layer_score)
         score *= 2.0 / (k + 1)
-        return score
+        return score, layer_scores
 
     def layer_score(self, reference_layer, taxonomy_layer, all_leafs):
         n = numpy.zeros((2, 2))

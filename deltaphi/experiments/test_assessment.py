@@ -72,22 +72,22 @@ class TestTaxonomyScore(unittest.TestCase):
         new_layer = layer.merge_groups(layer.groups[0], layer.groups[1])
         taxonomy.add_layer(new_layer)
         scorer = TaxonomyScore(taxonomy)
-        self.assertEqual(1, scorer.evaluate(taxonomy))
+        self.assertEqual(1, scorer.evaluate(taxonomy)[0])
 
     def test_ontolearn_example(self):
         # Taken from OntoLearn Reloaded: A Graph-Based Algorithm for Taxonomy Induction pag. 693
         taxonomy1 = self._build_taxonomy1()
         taxonomy2 = self._build_taxonomy2()
-        all_leafs = taxonomy1.leafs() | taxonomy2.leafs()
         scorer = TaxonomyScore(reference=taxonomy1)
-        self.assertAlmostEqual(0.67, scorer.layer_score(taxonomy1.layers[0], taxonomy2.layers[0], all_leafs), 2)
-        self.assertAlmostEqual(0.95, scorer.layer_score(taxonomy1.layers[1], taxonomy2.layers[1], all_leafs), 2)
-        self.assertEqual(0.00, scorer.layer_score(taxonomy1.layers[2], taxonomy2.layers[2], all_leafs), 2)
-        self.assertEqual(0.00, scorer.layer_score(taxonomy1.layers[3], taxonomy2.layers[2], all_leafs), 2)
+        score, layer_scores = scorer.evaluate(taxonomy2)
+        self.assertEqual(3, len(layer_scores))
+        self.assertAlmostEqual(0.67, layer_scores[0], 2)
+        self.assertAlmostEqual(0.95, layer_scores[1], 2)
+        self.assertEqual(0.00, layer_scores[2], 2)
 
-        self.assertAlmostEqual(0.43, scorer.evaluate(taxonomy2), 2)
+        self.assertAlmostEqual(0.43, score, 2)
         # Swapping taxonomies improves the score!
-        self.assertAlmostEqual(0.86, TaxonomyScore(reference=taxonomy2).evaluate(taxonomy1), 2)
+        self.assertAlmostEqual(0.86, TaxonomyScore(reference=taxonomy2).evaluate(taxonomy1)[0], 2)
 
     def _build_taxonomy1(self):
         leafs = [
@@ -161,5 +161,8 @@ class TestSearchTaxonomy(unittest.TestCase):
         taxonomy = search.build_taxonomy(self.base_layer)
         for i, layer in enumerate(taxonomy.layers):
             print i, "=", layer
-        print "Score:", TaxonomyScore(reference=Taxonomy.build_from_category_names(taxonomy.leafs())).evaluate(taxonomy)
+        print (
+            "Score:",
+            TaxonomyScore(reference=Taxonomy.build_from_category_names(taxonomy.leafs())).evaluate(taxonomy)[0]
+        )
         self.assertGreaterEqual(3, len(taxonomy.layers))
