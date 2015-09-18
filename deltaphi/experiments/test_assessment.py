@@ -48,17 +48,27 @@ class TestTaxonomy(unittest.TestCase):
         c6 = FakeCategoryInfo("B/d/6", 4)
         taxonomy = Taxonomy.build_from_category_names([c1, c2, c3, c4, c5, c6])
         first_layer = CategoryLayer([
-            CategoryGroup([c1, c2, c3]),
-            CategoryGroup([c4, c5, c6]),
+            CategoryGroup([c1, c2, c3]), CategoryGroup([c4, c5, c6]),
         ])
         self.assertEqual(first_layer, taxonomy.layers[1])
         second_layer = CategoryLayer([
-            CategoryGroup([c1, c2]),
-            CategoryGroup([c3]),
-            CategoryGroup([c4]),
-            CategoryGroup([c5, c6]),
+            CategoryGroup([c1, c2]), CategoryGroup([c3]), CategoryGroup([c4]), CategoryGroup([c5, c6]),
         ])
         self.assertEqual(second_layer, taxonomy.layers[2])
+
+    def test_dont_create_same_layer_twice(self):
+        c1 = FakeCategoryInfo("A/a/1", 4)
+        c2 = FakeCategoryInfo("A/a/2", 4)
+        c3 = FakeCategoryInfo("A/a/3", 4)
+        c4 = FakeCategoryInfo("B/b/4", 4)
+        c5 = FakeCategoryInfo("B/b/5", 4)
+        c6 = FakeCategoryInfo("B/b/6", 4)
+        taxonomy = Taxonomy.build_from_category_names([c1, c2, c3, c4, c5, c6])
+        first_layer = CategoryLayer([
+            CategoryGroup([c1, c2, c3]), CategoryGroup([c4, c5, c6]),
+        ])
+        self.assertEqual(first_layer, taxonomy.layers[1])
+        self.assertEqual(3, len(taxonomy.layers))
 
 
 class TestTaxonomyScore(unittest.TestCase):
@@ -161,8 +171,6 @@ class TestSearchTaxonomy(unittest.TestCase):
         taxonomy = search.build_taxonomy(self.base_layer)
         for i, layer in enumerate(taxonomy.layers):
             print i, "=", layer
-        print (
-            "Score:",
-            TaxonomyScore(reference=Taxonomy.build_from_category_names(taxonomy.leafs())).evaluate(taxonomy)[0]
-        )
+        print "Score:",
+        print TaxonomyScore(reference=Taxonomy.build_from_category_names(taxonomy.leafs())).evaluate(taxonomy)[0]
         self.assertGreaterEqual(3, len(taxonomy.layers))

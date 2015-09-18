@@ -36,17 +36,18 @@ class Taxonomy(object):
         depth = 0
         for category in leafs:
             full_name = category.category
-            tokens = full_name.split("/")
+            tokens = full_name.split("/")[:-1]  # Skip last token because it is the leaf category
             if len(tokens) > depth:
                 depth = len(tokens)
-            for i, token in enumerate(tokens[:-1]): # Skip last token because it is the leaf category
+            for i, token in enumerate(tokens):
                 tables[i][token].append(category)
         taxonomy = Taxonomy(CategoryLayer.build_closed_layer(leafs))
-        for i in range(0, depth - 1)[::-1]:
+        for i in range(0, depth)[::-1]:
             raw_groups = tables[i].values()
             groups = map(CategoryGroup, raw_groups)
             layer = CategoryLayer(groups)
-            taxonomy.add_layer(layer)
+            if layer != taxonomy.layers[1]:
+                taxonomy.add_layer(layer)
         return taxonomy
 
 

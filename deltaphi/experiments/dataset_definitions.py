@@ -1,7 +1,7 @@
 __author__ = 'Emanuele Tamponi'
 
 
-definitions = [
+DATASET_DEFINITIONS = [
     # EASY DATASETS
     (
         "easy1",

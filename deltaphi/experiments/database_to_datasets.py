@@ -4,9 +4,9 @@ __author__ = 'Emanuele Tamponi'
 
 
 def main():
-    from dataset_definitions import definitions
+    from dataset_definitions import DATASET_DEFINITIONS
 
-    for name, parents in definitions:
+    for name, parents in DATASET_DEFINITIONS:
         transform(name, parents)
 
 
